@@ -1,0 +1,39 @@
+{
+  "name": "catbox-redis",
+  "description": "Redis adapter for catbox",
+  "version": "1.0.0",
+  "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
+  "contributors": [
+    "Wyatt Preul <wpreul@gmail.com> (http://jsgeek.com)"
+  ],
+  "repository": "git://github.com/spumko/catbox-redis",
+  "main": "index",
+  "keywords": [
+    "cache",
+    "catbox",
+    "redis"
+  ],
+  "engines": {
+    "node": ">=0.10.22"
+  },
+  "dependencies": {
+    "redis": "0.10.x",
+    "hoek": "1.x.x"
+  },
+  "peerDependencies": {
+    "catbox": "2.x.x"
+  },
+  "devDependencies": {
+    "catbox": "2.x.x",
+    "lab": "1.x.x"
+  },
+  "scripts": {
+    "test": "make test-cov"
+  },
+  "licenses": [
+    {
+      "type": "BSD",
+      "url": "http://github.com/spumko/catbox-redis/raw/master/LICENSE"
+    }
+  ]
+}
