@@ -1,7 +1,7 @@
 {
   "name": "catbox-redis",
   "description": "Redis adapter for catbox",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
   "contributors": [
     "Wyatt Preul <wpreul@gmail.com> (http://jsgeek.com)"
@@ -18,11 +18,11 @@
   },
   "dependencies": {
     "redis": "0.10.x",
-    "hoek": "1.x.x"
+    "hoek": "2.x.x"
   },
   "devDependencies": {
     "catbox": "2.x.x",
-    "lab": "1.x.x"
+    "lab": "3.x.x"
   },
   "scripts": {
     "test": "make test-cov"

@@ -549,7 +549,7 @@ describe('Redis', function () {
             });
         });
 
-        it('passes an error to the callback when there is an error with the envelope structure', function (done) {
+        it('passes an error to the callback when there is an error with the envelope structure (stored)', function (done) {
 
             var options = {
                 host: '127.0.0.1',
@@ -561,6 +561,29 @@ describe('Redis', function () {
                 get: function (item, callback) {
 
                     callback(null, '{ "item": "false" }');
+                }
+            };
+
+            redis.get('test', function (err) {
+
+                expect(err).to.exist;
+                expect(err.message).to.equal('Incorrect envelope structure');
+                done();
+            });
+        });
+
+        it('passes an error to the callback when there is an error with the envelope structure (item)', function (done) {
+
+            var options = {
+                host: '127.0.0.1',
+                port: 6379
+            };
+
+            var redis = new Redis(options);
+            redis.client = {
+                get: function (item, callback) {
+
+                    callback(null, '{ "stored": "123" }');
                 }
             };
 
