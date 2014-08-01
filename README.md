@@ -3,6 +3,7 @@ catbox-redis
 
 Redis adapter for catbox
 
+Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
 
 ### Options
 
