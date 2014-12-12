@@ -407,8 +407,10 @@ describe('Redis', function () {
             
             var redis = new Redis(options);
             
-            expect(redis.client.selected_db).to.equal(1);
-            done();
+            redis.start(function () {
+                expect(redis.client.selected_db).to.equal(1);
+                done();
+            });
         });
 
         it('stops the client on error post connection', function (done) {
