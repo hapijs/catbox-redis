@@ -407,10 +407,13 @@ describe('Redis', function () {
             
             var redis = new Redis(options);
             
-            redis.start(function () {
+            redis.start(function () {});
+            
+            // redis.client.selected_db gets updated after the callback
+            setTimeout(function () {
                 expect(redis.client.selected_db).to.equal(1);
                 done();
-            });
+            }, 10);
         });
 
         it('stops the client on error post connection', function (done) {
