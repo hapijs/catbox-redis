@@ -1,5 +1,6 @@
 // Load modules
 
+var Code = require('code');
 var Lab = require('lab');
 var Catbox = require('catbox');
 var Redis = require('..');
@@ -12,10 +13,10 @@ var internals = {};
 
 // Test shortcuts
 
-var expect = Lab.expect;
-var before = Lab.before;
-var describe = Lab.experiment;
-var it = Lab.test;
+var lab = exports.lab = Lab.script();
+var expect = Code.expect;
+var describe = lab.describe;
+var it = lab.test;
 
 
 describe('Redis', function () {
@@ -61,7 +62,7 @@ describe('Redis', function () {
             var key = { id: 'x', segment: 'test' };
             client.set(key, '123', 500, function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 client.get(key, function (err, result) {
 
                     expect(err).to.equal(null);
@@ -113,12 +114,12 @@ describe('Redis', function () {
         var client = new Catbox.Client(Redis);
         client.start(function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             expect(client.isReady()).to.equal(true);
 
             client.start(function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 expect(client.isReady()).to.equal(true);
                 done();
             });
@@ -147,7 +148,7 @@ describe('Redis', function () {
             var key = { id: 'x', segment: 'test' };
             client.set(key, 'x', 1, function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 setTimeout(function () {
 
                     client.get(key, function (err, result) {
@@ -221,7 +222,7 @@ describe('Redis', function () {
             var key = { id: 'x', segment: 'test' };
             client.set(key, 'y', 0, function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 done();
             });
         });
@@ -247,8 +248,8 @@ describe('Redis', function () {
         var key = { id: 'x', segment: 'test' };
         client.connection.get(key, function (err, result) {
 
-            expect(err).to.exist;
-            expect(result).to.not.exist;
+            expect(err).to.exist();
+            expect(result).to.not.exist();
             done();
         });
     });
@@ -260,7 +261,7 @@ describe('Redis', function () {
         var key = { id: 'x', segment: 'test' };
         client.connection.set(key, 'y', 1, function (err) {
 
-            expect(err).to.exist;
+            expect(err).to.exist();
             done();
         });
     });
@@ -272,7 +273,7 @@ describe('Redis', function () {
         var key = { id: 'x', segment: 'test' };
         client.connection.drop(key, function (err) {
 
-            expect(err).to.exist;
+            expect(err).to.exist();
             done();
         });
     });
@@ -311,7 +312,7 @@ describe('Redis', function () {
         client.stop();
         client.drop('a', function (err) {
 
-            expect(err).to.exist;
+            expect(err).to.exist();
             done();
         });
     });
@@ -329,8 +330,8 @@ describe('Redis', function () {
 
             redis.start(function (err) {
 
-                expect(err).to.not.exist;
-                expect(redis.client).to.exist;
+                expect(err).to.not.exist();
+                expect(redis.client).to.exist();
                 done();
             });
         });
@@ -346,7 +347,7 @@ describe('Redis', function () {
 
             redis.start(function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 var client = redis.client;
 
                 redis.start(function () {
@@ -368,9 +369,9 @@ describe('Redis', function () {
 
             redis.start(function (err) {
 
-                expect(err).to.exist;
+                expect(err).to.exist();
                 expect(err).to.be.instanceOf(Error);
-                expect(redis.client).to.not.exist;
+                expect(redis.client).to.not.exist();
                 done();
             });
         });
@@ -408,11 +409,11 @@ describe('Redis', function () {
 
             redis.start(function (err) {
 
-                expect(err).to.not.exist;
-                expect(redis.client).to.exist;
+                expect(err).to.not.exist();
+                expect(redis.client).to.exist();
 
                 redis.client.emit('error', new Error('injected'));
-                expect(redis.client).to.not.exist;
+                expect(redis.client).to.not.exist();
                 done();
             });
         });
@@ -481,7 +482,7 @@ describe('Redis', function () {
 
             redis.get('test', function (err) {
 
-                expect(err).to.exist;
+                expect(err).to.exist();
                 expect(err).to.be.instanceOf(Error);
                 expect(err.message).to.equal('Connection not started');
                 done();
@@ -505,7 +506,7 @@ describe('Redis', function () {
 
             redis.get('test', function (err) {
 
-                expect(err).to.exist;
+                expect(err).to.exist();
                 expect(err).to.be.instanceOf(Error);
                 done();
             });
@@ -528,7 +529,7 @@ describe('Redis', function () {
 
             redis.get('test', function (err) {
 
-                expect(err).to.exist;
+                expect(err).to.exist();
                 expect(err.message).to.equal('Bad envelope content');
                 done();
             });
@@ -551,7 +552,7 @@ describe('Redis', function () {
 
             redis.get('test', function (err) {
 
-                expect(err).to.exist;
+                expect(err).to.exist();
                 expect(err.message).to.equal('Incorrect envelope structure');
                 done();
             });
@@ -574,7 +575,7 @@ describe('Redis', function () {
 
             redis.get('test', function (err) {
 
-                expect(err).to.exist;
+                expect(err).to.exist();
                 expect(err.message).to.equal('Incorrect envelope structure');
                 done();
             });
@@ -598,10 +599,10 @@ describe('Redis', function () {
 
                 redis.set(key, 'myvalue', 200, function (err) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     redis.get(key, function (err, result) {
 
-                        expect(err).to.not.exist;
+                        expect(err).to.not.exist();
                         expect(result.item).to.equal('myvalue');
                         done();
                     });
@@ -627,8 +628,8 @@ describe('Redis', function () {
 
                 redis.get(key, function (err, result) {
 
-                    expect(err).to.not.exist;
-                    expect(result).to.not.exist;
+                    expect(err).to.not.exist();
+                    expect(result).to.not.exist();
                     done();
                 });
             });
@@ -648,7 +649,7 @@ describe('Redis', function () {
 
             redis.set('test1', 'test1', 3600, function (err) {
 
-                expect(err).to.exist;
+                expect(err).to.exist();
                 expect(err).to.be.instanceOf(Error);
                 expect(err.message).to.equal('Connection not started');
                 done();
@@ -672,7 +673,7 @@ describe('Redis', function () {
 
             redis.set('test', 'test', 3600, function (err) {
 
-                expect(err).to.exist;
+                expect(err).to.exist();
                 expect(err).to.be.instanceOf(Error);
                 done();
             });
@@ -692,7 +693,7 @@ describe('Redis', function () {
 
             redis.drop('test2', function (err) {
 
-                expect(err).to.exist;
+                expect(err).to.exist();
                 expect(err).to.be.instanceOf(Error);
                 expect(err.message).to.equal('Connection not started');
                 done();
@@ -716,7 +717,7 @@ describe('Redis', function () {
 
             redis.drop('test', function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 done();
             });
         });
@@ -735,9 +736,9 @@ describe('Redis', function () {
 
             redis.start(function () {
 
-                expect(redis.client).to.exist;
+                expect(redis.client).to.exist();
                 redis.stop();
-                expect(redis.client).to.not.exist;
+                expect(redis.client).to.not.exist();
                 done();
             });
         });

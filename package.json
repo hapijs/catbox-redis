@@ -17,12 +17,13 @@
     "node": ">=0.10.30"
   },
   "dependencies": {
-    "redis": "0.10.x",
+    "redis": "0.12.x",
     "hoek": "2.x.x"
   },
   "devDependencies": {
-    "catbox": "3.x.x",
-    "lab": "3.x.x"
+    "catbox": "4.x.x",
+    "code": "1.x.x",
+    "lab": "5.x.x"
   },
   "scripts": {
     "test": "make test-cov"
