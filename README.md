@@ -1,4 +1,4 @@
-catbox-redis
+catbox-redis ![travis](https://travis-ci.org/hapijs/catbox-redis.svg?branch=master)
 ============
 
 Redis adapter for catbox
