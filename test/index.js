@@ -416,7 +416,7 @@ describe('Redis', function () {
             }, 10);
         });
 
-        it('stops the client on error post connection', function (done) {
+        it('does not stops the client on error post connection', function (done) {
 
             var options = {
                 host: '127.0.0.1',
@@ -431,7 +431,76 @@ describe('Redis', function () {
                 expect(redis.client).to.exist();
 
                 redis.client.emit('error', new Error('injected'));
-                expect(redis.client).to.not.exist();
+                expect(redis.client).to.exist();
+                done();
+            });
+        });
+    });
+
+    describe('#isReady', function () {
+
+        it ('returns true when when connected', function (done) {
+ 
+            var options = {
+                host: '127.0.0.1',
+                port: 6379
+            };
+
+            var redis = new Redis(options);
+
+            redis.start(function (err) {
+
+                expect(err).to.not.exist();
+                expect(redis.isReady()).to.equal(true);
+
+                redis.stop();
+
+                done();
+            });
+        });
+
+        it ('returns false when stopped', function (done) {
+
+            var options = {
+                host: '127.0.0.1',
+                port: 6379
+            };
+
+            var redis = new Redis(options);
+
+            redis.start(function (err) {
+
+                expect(err).to.not.exist();
+                expect(redis.isReady()).to.equal(true);
+
+                redis.stop();
+
+                expect(redis.isReady()).to.equal(false);
+
+                done();
+            });
+        });
+
+        it ('returns false when disconnected', function (done) {
+
+            var options = {
+                host: '127.0.0.1',
+                port: 6379
+            };
+
+            var redis = new Redis(options);
+
+            redis.start(function (err) {
+
+                expect(err).to.not.exist();
+                expect(redis.client).to.exist();
+                expect(redis.isReady()).to.equal(true);
+
+                redis.client.end();
+
+                expect(redis.isReady()).to.equal(false);
+
+                redis.stop();
                 done();
             });
         });
