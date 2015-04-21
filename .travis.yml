@@ -12,4 +12,5 @@ services:
 
 before_script:
   - redis-server --port 6378 --requirepass secret &
+  - redis-server --port 6377 --unixsocket /tmp/redis.sock &
   - sleep 2
