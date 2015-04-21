@@ -397,23 +397,41 @@ describe('Redis', function () {
                 done();
             });
         });
-        
+
         it('sends select command when database is provided', function (done) {
             var options = {
                 host: '127.0.0.1',
                 port: 6379,
                 database: 1
             };
-            
+
             var redis = new Redis(options);
-            
+
             redis.start(function () {});
-            
+
             // redis.client.selected_db gets updated after the callback
             setTimeout(function () {
                 expect(redis.client.selected_db).to.equal(1);
                 done();
             }, 10);
+        });
+
+        it('connects to a unix domain socket when one is provided.', function (done) {
+
+            var options = {
+                socket: "/var/run/redis/redis.sock"
+            };
+
+            var redis = new Redis(options);
+
+            redis.start(function (err) {
+
+                var client = redis.client;
+                expect(client).to.exist();
+                expect(client.connected).to.equal(true);
+                expect(client.address).to.equal(options.socket);
+                done();
+            });
         });
 
         it('stops the client on error post connection', function (done) {
