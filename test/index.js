@@ -394,23 +394,26 @@ describe('Redis', function () {
             };
 
             redis.start(function (err) {
+
                 done();
             });
         });
-        
+
         it('sends select command when database is provided', function (done) {
+
             var options = {
                 host: '127.0.0.1',
                 port: 6379,
                 database: 1
             };
-            
+
             var redis = new Redis(options);
-            
+
             redis.start(function () {});
-            
+
             // redis.client.selected_db gets updated after the callback
             setTimeout(function () {
+
                 expect(redis.client.selected_db).to.equal(1);
                 done();
             }, 10);
@@ -439,8 +442,8 @@ describe('Redis', function () {
 
     describe('#isReady', function () {
 
-        it ('returns true when when connected', function (done) {
- 
+        it('returns true when when connected', function (done) {
+
             var options = {
                 host: '127.0.0.1',
                 port: 6379
@@ -459,7 +462,7 @@ describe('Redis', function () {
             });
         });
 
-        it ('returns false when stopped', function (done) {
+        it('returns false when stopped', function (done) {
 
             var options = {
                 host: '127.0.0.1',
@@ -481,7 +484,7 @@ describe('Redis', function () {
             });
         });
 
-        it ('returns false when disconnected', function (done) {
+        it('returns false when disconnected', function (done) {
 
             var options = {
                 host: '127.0.0.1',

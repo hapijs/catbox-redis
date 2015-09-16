@@ -21,7 +21,7 @@ internals.handler = function (req, res) {
             res.end();
         }
         else {
-            res.writeHead(200, {'Content-Type': 'text/plain'});
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end(item);
         }
     });
@@ -46,12 +46,10 @@ internals.getResponse = function (callback) {
         else if (cached) {
             return callback(null, 'From cache: ' + cached.item);
         }
-        else {
-            internals.client.set(key, cacheValue, ttl, function (error) {
+        internals.client.set(key, cacheValue, ttl, function (error) {
 
-                callback(error, cacheValue);
-            });
-        }
+            callback(error, cacheValue);
+        });
     });
 };
 
@@ -74,7 +72,7 @@ internals.startServer = function (err) {
 
     if (err) {
         console.log(err);
-        console.log('Could not connect to redis. Ending process.')
+        console.log('Could not connect to redis. Ending process.');
         process.exit();
     } else {
         var server = Http.createServer(internals.handler);
