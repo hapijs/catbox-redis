@@ -25,7 +25,7 @@ describe('Redis', function () {
 
         var fn = function () {
 
-            var redis = Redis();
+            Redis();
         };
 
         expect(fn).to.throw(Error);
@@ -286,7 +286,7 @@ describe('Redis', function () {
         var fn = function () {
 
             var client = new Catbox.Client(Redis);
-            var cache = new Catbox.Policy(config, client, '');
+            new Catbox.Policy(config, client, '');
         };
         expect(fn).to.throw(Error);
         done();
@@ -300,7 +300,7 @@ describe('Redis', function () {
         var fn = function () {
 
             var client = new Catbox.Client(Redis);
-            var cache = new Catbox.Policy(config, client, 'a\0b');
+            new Catbox.Policy(config, client, 'a\0b');
         };
         expect(fn).to.throw(Error);
         done();

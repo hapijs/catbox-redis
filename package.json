@@ -23,16 +23,11 @@
   "devDependencies": {
     "catbox": "4.x.x",
     "code": "1.x.x",
-    "lab": "5.x.x"
+    "lab": "6.x.x"
   },
   "scripts": {
     "test": "lab -r console -t 100 -a code -L",
     "test-cov-html": "lab -r html -o coverage.html -a code -L"
   },
-  "licenses": [
-    {
-      "type": "BSD",
-      "url": "http://github.com/hapijs/catbox-redis/raw/master/LICENSE"
-    }
-  ]
+  "license": "BSD-3-Clause"
 }
