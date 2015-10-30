@@ -503,7 +503,6 @@ describe('Redis', function () {
 
                 expect(redis.isReady()).to.equal(false);
 
-                redis.stop();
                 done();
             });
         });

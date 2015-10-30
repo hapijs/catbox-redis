@@ -17,7 +17,7 @@
     "node": ">=0.10.30"
   },
   "dependencies": {
-    "redis": "0.12.x",
+    "redis": "2.2.x",
     "hoek": "2.x.x"
   },
   "devDependencies": {
@@ -31,3 +31,4 @@
   },
   "license": "BSD-3-Clause"
 }
+
