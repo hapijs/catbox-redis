@@ -17,7 +17,7 @@
     "node": ">=0.10.30"
   },
   "dependencies": {
-    "redis": "2.2.x",
+    "redis": "2.x.x",
     "hoek": "2.x.x"
   },
   "devDependencies": {
