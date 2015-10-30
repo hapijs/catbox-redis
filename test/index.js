@@ -827,6 +827,7 @@ describe('Redis', function () {
             redis.start(function () {
 
                 expect(redis.client).to.exist();
+                expect(redis.client.ready).to.be.true();
                 redis.stop();
                 expect(redis.client).to.not.exist();
                 done();
