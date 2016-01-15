@@ -1,7 +1,7 @@
 {
   "name": "catbox-redis",
   "description": "Redis adapter for catbox",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "author": "Eran Hammer <eran@hammer.io> (http://hueniverse.com)",
   "contributors": [
     "Wyatt Preul <wpreul@gmail.com> (http://jsgeek.com)"
