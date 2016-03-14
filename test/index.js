@@ -890,7 +890,7 @@ describe('Redis', () => {
                 segment: 'baz'
             };
 
-            expect(redis.generateKey(key)).to.equal('undefined:baz:bar');
+            expect(redis.generateKey(key)).to.equal('baz:bar');
             done();
         });
     });
