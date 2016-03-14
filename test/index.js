@@ -860,6 +860,41 @@ describe('Redis', () => {
         });
     });
 
+    describe('generateKey()', () => {
+
+        it('generates the storage key from a given catbox key', (done) => {
+
+            const options = {
+                partition: 'foo'
+            };
+
+            const redis = new Redis(options);
+
+            const key = {
+                id: 'bar',
+                segment: 'baz'
+            };
+
+            expect(redis.generateKey(key)).to.equal('foo:baz:bar');
+            done();
+        });
+
+        it('generates the storage key from a given catbox key without partition', (done) => {
+
+            const options = {};
+
+            const redis = new Redis(options);
+
+            const key = {
+                id: 'bar',
+                segment: 'baz'
+            };
+
+            expect(redis.generateKey(key)).to.equal('undefined:baz:bar');
+            done();
+        });
+    });
+
     describe('stop()', () => {
 
         it('sets the client to null', (done) => {
