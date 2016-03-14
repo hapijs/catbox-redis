@@ -332,7 +332,7 @@ describe('Redis', () => {
         });
     });
 
-    describe('#start', () => {
+    describe('start()', () => {
 
         it('sets client to when the connection succeeds', (done) => {
 
@@ -456,7 +456,7 @@ describe('Redis', () => {
         });
     });
 
-    describe('#isReady', () => {
+    describe('isReady()', () => {
 
         it('returns true when when connected', (done) => {
 
@@ -524,7 +524,7 @@ describe('Redis', () => {
         });
     });
 
-    describe('#validateSegmentName', () => {
+    describe('validateSegmentName()', () => {
 
         it('returns an error when the name is empty', (done) => {
 
@@ -574,7 +574,7 @@ describe('Redis', () => {
         });
     });
 
-    describe('#get', () => {
+    describe('get()', () => {
 
         it('passes an error to the callback when the connection is closed', (done) => {
 
@@ -741,7 +741,7 @@ describe('Redis', () => {
         });
     });
 
-    describe('#set', () => {
+    describe('set()', () => {
 
         it('passes an error to the callback when the connection is closed', (done) => {
 
@@ -785,7 +785,7 @@ describe('Redis', () => {
         });
     });
 
-    describe('#drop', () => {
+    describe('drop()', () => {
 
         it('passes an error to the callback when the connection is closed', (done) => {
 
@@ -828,7 +828,7 @@ describe('Redis', () => {
         });
     });
 
-    describe('#stop', () => {
+    describe('stop()', () => {
 
         it('sets the client to null', (done) => {
 
