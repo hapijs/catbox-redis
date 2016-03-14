@@ -415,6 +415,38 @@ describe('Redis', () => {
             });
         });
 
+        it('fails in error when auth is not correct', (done) => {
+
+            const options = {
+                host: '127.0.0.1',
+                port: 6378,
+                password: 'foo'
+            };
+
+            const redis = new Redis(options);
+
+            redis.start((err) => {
+
+                expect(err).to.exist();
+                expect(err).to.be.instanceOf(Error);
+                expect(redis.client).to.not.exist();
+                done();
+            });
+        });
+
+        it('success when auth is correct', (done) => {
+
+            const options = {
+                host: '127.0.0.1',
+                port: 6378,
+                password: 'secret'
+            };
+
+            const redis = new Redis(options);
+
+            redis.start(done);
+        });
+
         it('sends select command when database is provided', (done) => {
 
             const options = {
