@@ -21,6 +21,8 @@ The test suite expects:
 - a redis server listenning to port 6378 and requiring a password: 'secret'
 - a redis server listenning on socket `/tmp/redis.sock`
 
+See [.travis.yml](./.travis.yml)
+
 ```sh
 redis-server&
 npm test
