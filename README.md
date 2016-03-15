@@ -9,13 +9,17 @@ Lead Maintainer: [Loic Mahieu](https://github.com/LoicMahieu)
 
 - `host` - the Redis server hostname. Defaults to `'127.0.0.1'`.
 - `port` - the Redis server port or unix domain socket path. Defaults to `6379`.
+- `socket` - the unix socket string to connect to (if `socket` is provided, `host` and `port` are ignored)
 - `password` - the Redis authentication password when required.
 - `database` - the Redis database.
 - `partition` - this will store items under keys that start with this value. (Default: '')
 
 ## Tests
 
-The test suite expects a redis server to be running on port 6379 and another redis server listenning to port 6378 and requiring a password: 'secret'.
+The test suite expects:
+- a redis server to be running on port 6379
+- a redis server listenning to port 6378 and requiring a password: 'secret'
+- a redis server listenning on socket `/tmp/redis.sock`
 
 ```sh
 redis-server&
