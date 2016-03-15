@@ -1,33 +1,30 @@
-
-'use strict';
-
 // Load modules
 
-const Code = require('code');
-const Lab = require('lab');
-const Catbox = require('catbox');
-const Redis = require('..');
-const RedisClient = require('redis');
+var Code = require('code');
+var Lab = require('lab');
+var Catbox = require('catbox');
+var Redis = require('..');
+var RedisClient = require('redis');
 
 
 // Declare internals
 
-const internals = {};
+var internals = {};
 
 
 // Test shortcuts
 
-const lab = exports.lab = Lab.script();
-const expect = Code.expect;
-const describe = lab.describe;
-const it = lab.test;
+var lab = exports.lab = Lab.script();
+var expect = Code.expect;
+var describe = lab.describe;
+var it = lab.test;
 
 
-describe('Redis', () => {
+describe('Redis', function () {
 
-    it('throws an error if not created with new', (done) => {
+    it('throws an error if not created with new', function (done) {
 
-        const fn = () => {
+        var fn = function () {
 
             Redis();
         };
@@ -36,22 +33,21 @@ describe('Redis', () => {
         done();
     });
 
-    it('creates a new connection', (done) => {
+    it('creates a new connection', function (done) {
 
-        const client = new Catbox.Client(Redis);
-        client.start((err) => {
+        var client = new Catbox.Client(Redis);
+        client.start(function (err) {
 
             expect(client.isReady()).to.equal(true);
-            done(err);
+            done();
         });
     });
 
-    it('closes the connection', (done) => {
+    it('closes the connection', function (done) {
 
-        const client = new Catbox.Client(Redis);
-        client.start((err) => {
+        var client = new Catbox.Client(Redis);
+        client.start(function (err) {
 
-            expect(err).to.not.exist();
             expect(client.isReady()).to.equal(true);
             client.stop();
             expect(client.isReady()).to.equal(false);
@@ -59,12 +55,12 @@ describe('Redis', () => {
         });
     });
 
-    it('allow passing client in option', (done) => {
+    it('allow passing client in option', function (done) {
 
-        const redisClient = RedisClient.createClient();
+        var redisClient = RedisClient.createClient();
 
-        let getCalled = false;
-        const _get = redisClient.get;
+        var getCalled = false;
+        var _get = redisClient.get;
         redisClient.get = function (key, callback) {
 
             getCalled = true;
@@ -72,17 +68,17 @@ describe('Redis', () => {
         };
 
         redisClient.on('error', done);
-        redisClient.once('ready', () => {
+        redisClient.once('ready', function () {
 
-            const client = new Catbox.Client(Redis, {
+            var client = new Catbox.Client(Redis, {
                 client: redisClient
             });
-            client.start((err) => {
+            client.start(function (err) {
 
                 expect(err).to.not.exist();
                 expect(client.isReady()).to.equal(true);
-                const key = { id: 'x', segment: 'test' };
-                client.get(key, (err, result) => {
+                var key = { id: 'x', segment: 'test' };
+                client.get(key, function (err, result) {
 
                     expect(err).to.equal(null);
                     expect(getCalled).to.equal(true);
@@ -92,17 +88,16 @@ describe('Redis', () => {
         });
     });
 
-    it('gets an item after settig it', (done) => {
+    it('gets an item after settig it', function (done) {
 
-        const client = new Catbox.Client(Redis);
-        client.start((err) => {
+        var client = new Catbox.Client(Redis);
+        client.start(function (err) {
 
-            expect(err).to.not.exist();
-            const key = { id: 'x', segment: 'test' };
-            client.set(key, '123', 500, (err) => {
+            var key = { id: 'x', segment: 'test' };
+            client.set(key, '123', 500, function (err) {
 
                 expect(err).to.not.exist();
-                client.get(key, (err, result) => {
+                client.get(key, function (err, result) {
 
                     expect(err).to.equal(null);
                     expect(result.item).to.equal('123');
@@ -112,16 +107,15 @@ describe('Redis', () => {
         });
     });
 
-    it('fails setting an item circular references', (done) => {
+    it('fails setting an item circular references', function (done) {
 
-        const client = new Catbox.Client(Redis);
-        client.start((err) => {
+        var client = new Catbox.Client(Redis);
+        client.start(function (err) {
 
-            expect(err).to.not.exist();
-            const key = { id: 'x', segment: 'test' };
-            const value = { a: 1 };
+            var key = { id: 'x', segment: 'test' };
+            var value = { a: 1 };
             value.b = value;
-            client.set(key, value, 10, (err) => {
+            client.set(key, value, 10, function (err) {
 
                 expect(err.message).to.equal('Converting circular structure to JSON');
                 done();
@@ -129,15 +123,14 @@ describe('Redis', () => {
         });
     });
 
-    it('ignored starting a connection twice on same event', (done) => {
+    it('ignored starting a connection twice on same event', function (done) {
 
-        const client = new Catbox.Client(Redis);
-        let x = 2;
-        const start = () => {
+        var client = new Catbox.Client(Redis);
+        var x = 2;
+        var start = function () {
 
-            client.start((err) => {
+            client.start(function (err) {
 
-                expect(err).to.not.exist();
                 expect(client.isReady()).to.equal(true);
                 --x;
                 if (!x) {
@@ -150,15 +143,15 @@ describe('Redis', () => {
         start();
     });
 
-    it('ignored starting a connection twice chained', (done) => {
+    it('ignored starting a connection twice chained', function (done) {
 
-        const client = new Catbox.Client(Redis);
-        client.start((err) => {
+        var client = new Catbox.Client(Redis);
+        client.start(function (err) {
 
             expect(err).to.not.exist();
             expect(client.isReady()).to.equal(true);
 
-            client.start((err) => {
+            client.start(function (err) {
 
                 expect(err).to.not.exist();
                 expect(client.isReady()).to.equal(true);
@@ -167,13 +160,12 @@ describe('Redis', () => {
         });
     });
 
-    it('returns not found on get when using null key', (done) => {
+    it('returns not found on get when using null key', function (done) {
 
-        const client = new Catbox.Client(Redis);
-        client.start((err) => {
+        var client = new Catbox.Client(Redis);
+        client.start(function (err) {
 
-            expect(err).to.not.exist();
-            client.get(null, (err, result) => {
+            client.get(null, function (err, result) {
 
                 expect(err).to.equal(null);
                 expect(result).to.equal(null);
@@ -182,19 +174,18 @@ describe('Redis', () => {
         });
     });
 
-    it('returns not found on get when item expired', (done) => {
+    it('returns not found on get when item expired', function (done) {
 
-        const client = new Catbox.Client(Redis);
-        client.start((err) => {
+        var client = new Catbox.Client(Redis);
+        client.start(function (err) {
 
-            expect(err).to.not.exist();
-            const key = { id: 'x', segment: 'test' };
-            client.set(key, 'x', 1, (err) => {
+            var key = { id: 'x', segment: 'test' };
+            client.set(key, 'x', 1, function (err) {
 
                 expect(err).to.not.exist();
-                setTimeout(() => {
+                setTimeout(function () {
 
-                    client.get(key, (err, result) => {
+                    client.get(key, function (err, result) {
 
                         expect(err).to.equal(null);
                         expect(result).to.equal(null);
@@ -205,27 +196,12 @@ describe('Redis', () => {
         });
     });
 
-    it('returns error on set when using null key', (done) => {
+    it('returns error on set when using null key', function (done) {
 
-        const client = new Catbox.Client(Redis);
-        client.start((err) => {
+        var client = new Catbox.Client(Redis);
+        client.start(function (err) {
 
-            expect(err).to.not.exist();
-            client.set(null, {}, 1000, (err) => {
-
-                expect(err instanceof Error).to.equal(true);
-                done();
-            });
-        });
-    });
-
-    it('returns error on get when using invalid key', (done) => {
-
-        const client = new Catbox.Client(Redis);
-        client.start((err) => {
-
-            expect(err).to.not.exist();
-            client.get({}, (err) => {
+            client.set(null, {}, 1000, function (err) {
 
                 expect(err instanceof Error).to.equal(true);
                 done();
@@ -233,27 +209,12 @@ describe('Redis', () => {
         });
     });
 
-    it('returns error on drop when using invalid key', (done) => {
+    it('returns error on get when using invalid key', function (done) {
 
-        const client = new Catbox.Client(Redis);
-        client.start((err) => {
+        var client = new Catbox.Client(Redis);
+        client.start(function (err) {
 
-            expect(err).to.not.exist();
-            client.drop({}, (err) => {
-
-                expect(err instanceof Error).to.equal(true);
-                done();
-            });
-        });
-    });
-
-    it('returns error on set when using invalid key', (done) => {
-
-        const client = new Catbox.Client(Redis);
-        client.start((err) => {
-
-            expect(err).to.not.exist();
-            client.set({}, {}, 1000, (err) => {
+            client.get({}, function (err) {
 
                 expect(err instanceof Error).to.equal(true);
                 done();
@@ -261,14 +222,39 @@ describe('Redis', () => {
         });
     });
 
-    it('ignores set when using non-positive ttl value', (done) => {
+    it('returns error on drop when using invalid key', function (done) {
 
-        const client = new Catbox.Client(Redis);
-        client.start((err) => {
+        var client = new Catbox.Client(Redis);
+        client.start(function (err) {
 
-            expect(err).to.not.exist();
-            const key = { id: 'x', segment: 'test' };
-            client.set(key, 'y', 0, (err) => {
+            client.drop({}, function (err) {
+
+                expect(err instanceof Error).to.equal(true);
+                done();
+            });
+        });
+    });
+
+    it('returns error on set when using invalid key', function (done) {
+
+        var client = new Catbox.Client(Redis);
+        client.start(function (err) {
+
+            client.set({}, {}, 1000, function (err) {
+
+                expect(err instanceof Error).to.equal(true);
+                done();
+            });
+        });
+    });
+
+    it('ignores set when using non-positive ttl value', function (done) {
+
+        var client = new Catbox.Client(Redis);
+        client.start(function (err) {
+
+            var key = { id: 'x', segment: 'test' };
+            client.set(key, 'y', 0, function (err) {
 
                 expect(err).to.not.exist();
                 done();
@@ -276,13 +262,12 @@ describe('Redis', () => {
         });
     });
 
-    it('returns error on drop when using null key', (done) => {
+    it('returns error on drop when using null key', function (done) {
 
-        const client = new Catbox.Client(Redis);
-        client.start((err) => {
+        var client = new Catbox.Client(Redis);
+        client.start(function (err) {
 
-            expect(err).to.not.exist();
-            client.drop(null, (err) => {
+            client.drop(null, function (err) {
 
                 expect(err instanceof Error).to.equal(true);
                 done();
@@ -290,12 +275,12 @@ describe('Redis', () => {
         });
     });
 
-    it('returns error on get when stopped', (done) => {
+    it('returns error on get when stopped', function (done) {
 
-        const client = new Catbox.Client(Redis);
+        var client = new Catbox.Client(Redis);
         client.stop();
-        const key = { id: 'x', segment: 'test' };
-        client.connection.get(key, (err, result) => {
+        var key = { id: 'x', segment: 'test' };
+        client.connection.get(key, function (err, result) {
 
             expect(err).to.exist();
             expect(result).to.not.exist();
@@ -303,81 +288,81 @@ describe('Redis', () => {
         });
     });
 
-    it('returns error on set when stopped', (done) => {
+    it('returns error on set when stopped', function (done) {
 
-        const client = new Catbox.Client(Redis);
+        var client = new Catbox.Client(Redis);
         client.stop();
-        const key = { id: 'x', segment: 'test' };
-        client.connection.set(key, 'y', 1, (err) => {
+        var key = { id: 'x', segment: 'test' };
+        client.connection.set(key, 'y', 1, function (err) {
 
             expect(err).to.exist();
             done();
         });
     });
 
-    it('returns error on drop when stopped', (done) => {
+    it('returns error on drop when stopped', function (done) {
 
-        const client = new Catbox.Client(Redis);
+        var client = new Catbox.Client(Redis);
         client.stop();
-        const key = { id: 'x', segment: 'test' };
-        client.connection.drop(key, (err) => {
+        var key = { id: 'x', segment: 'test' };
+        client.connection.drop(key, function (err) {
 
             expect(err).to.exist();
             done();
         });
     });
 
-    it('returns error on missing segment name', (done) => {
+    it('returns error on missing segment name', function (done) {
 
-        const config = {
+        var config = {
             expiresIn: 50000
         };
-        const fn = () => {
+        var fn = function () {
 
-            const client = new Catbox.Client(Redis);
+            var client = new Catbox.Client(Redis);
             new Catbox.Policy(config, client, '');
         };
         expect(fn).to.throw(Error);
         done();
     });
 
-    it('returns error on bad segment name', (done) => {
+    it('returns error on bad segment name', function (done) {
 
-        const config = {
+        var config = {
             expiresIn: 50000
         };
-        const fn = () => {
+        var fn = function () {
 
-            const client = new Catbox.Client(Redis);
+            var client = new Catbox.Client(Redis);
             new Catbox.Policy(config, client, 'a\0b');
         };
         expect(fn).to.throw(Error);
         done();
     });
 
-    it('returns error when cache item dropped while stopped', (done) => {
+    it('returns error when cache item dropped while stopped', function (done) {
 
-        const client = new Catbox.Client(Redis);
+        var client = new Catbox.Client(Redis);
         client.stop();
-        client.drop('a', (err) => {
+        client.drop('a', function (err) {
 
             expect(err).to.exist();
             done();
         });
     });
 
-    describe('start()', () => {
+    describe('#start', function () {
 
-        it('sets client to when the connection succeeds', (done) => {
+        it('sets client to when the connection succeeds', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            redis.start((err) => {
+            redis.start(function (err) {
 
                 expect(err).to.not.exist();
                 expect(redis.client).to.exist();
@@ -385,21 +370,21 @@ describe('Redis', () => {
             });
         });
 
-        it('reuses the client when a connection is already started', (done) => {
+        it('reuses the client when a connection is already started', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            redis.start((err) => {
+            redis.start(function (err) {
 
                 expect(err).to.not.exist();
-                const client = redis.client;
+                var client = redis.client;
 
-                redis.start(() => {
+                redis.start(function () {
 
                     expect(client).to.equal(redis.client);
                     done();
@@ -407,16 +392,16 @@ describe('Redis', () => {
             });
         });
 
-        it('returns an error when connection fails', (done) => {
+        it('returns an error when connection fails', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6380
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            redis.start((err) => {
+            redis.start(function (err) {
 
                 expect(err).to.exist();
                 expect(err).to.be.instanceOf(Error);
@@ -425,41 +410,41 @@ describe('Redis', () => {
             });
         });
 
-        it('sends auth command when password is provided', (done) => {
+        it('sends auth command when password is provided', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379,
                 password: 'wrongpassword'
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            const log = console.log;
+            var log = console.log;
             console.log = function (message) {
 
                 expect(message).to.contain('Warning');
                 console.log = log;
             };
 
-            redis.start((err) => {
+            redis.start(function (err) {
 
                 expect(err).to.not.exist();
                 done();
             });
         });
 
-        it('fails in error when auth is not correct', (done) => {
+        it('fails in error when auth is not correct', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6378,
                 password: 'foo'
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            redis.start((err) => {
+            redis.start(function (err) {
 
                 expect(err).to.exist();
                 expect(err).to.be.instanceOf(Error);
@@ -468,51 +453,51 @@ describe('Redis', () => {
             });
         });
 
-        it('success when auth is correct', (done) => {
+        it('success when auth is correct', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6378,
                 password: 'secret'
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
             redis.start(done);
         });
 
-        it('sends select command when database is provided', (done) => {
+        it('sends select command when database is provided', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379,
                 database: 1
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            redis.start(() => {});
+            redis.start(function () {});
 
             // redis.client.selected_db gets updated after the callback
-            setTimeout(() => {
+            setTimeout(function () {
 
                 expect(redis.client.selected_db).to.equal(1);
                 done();
             }, 10);
         });
 
-        it('connects to a unix domain socket when one is provided.', (done) => {
+        it('connects to a unix domain socket when one is provided.', function (done) {
 
-            const options = {
+            var options = {
                 socket: '/tmp/redis.sock'
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            redis.start((err) => {
+            redis.start(function (err) {
 
                 expect(err).to.not.exist();
-                const client = redis.client;
+                var client = redis.client;
                 expect(client).to.exist();
                 expect(client.connected).to.equal(true);
                 expect(client.address).to.equal(options.socket);
@@ -520,16 +505,16 @@ describe('Redis', () => {
             });
         });
 
-        it('does not stops the client on error post connection', (done) => {
+        it('does not stops the client on error post connection', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            redis.start((err) => {
+            redis.start(function (err) {
 
                 expect(err).to.not.exist();
                 expect(redis.client).to.exist();
@@ -541,18 +526,18 @@ describe('Redis', () => {
         });
     });
 
-    describe('isReady()', () => {
+    describe('#isReady', function () {
 
-        it('returns true when when connected', (done) => {
+        it('returns true when when connected', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            redis.start((err) => {
+            redis.start(function (err) {
 
                 expect(err).to.not.exist();
                 expect(redis.isReady()).to.equal(true);
@@ -563,16 +548,16 @@ describe('Redis', () => {
             });
         });
 
-        it('returns false when stopped', (done) => {
+        it('returns false when stopped', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            redis.start((err) => {
+            redis.start(function (err) {
 
                 expect(err).to.not.exist();
                 expect(redis.isReady()).to.equal(true);
@@ -585,16 +570,16 @@ describe('Redis', () => {
             });
         });
 
-        it('returns false when disconnected', (done) => {
+        it('returns false when disconnected', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            redis.start((err) => {
+            redis.start(function (err) {
 
                 expect(err).to.not.exist();
                 expect(redis.client).to.exist();
@@ -609,49 +594,49 @@ describe('Redis', () => {
         });
     });
 
-    describe('validateSegmentName()', () => {
+    describe('#validateSegmentName', function () {
 
-        it('returns an error when the name is empty', (done) => {
+        it('returns an error when the name is empty', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            const result = redis.validateSegmentName('');
+            var result = redis.validateSegmentName('');
 
             expect(result).to.be.instanceOf(Error);
             expect(result.message).to.equal('Empty string');
             done();
         });
 
-        it('returns an error when the name has a null character', (done) => {
+        it('returns an error when the name has a null character', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            const result = redis.validateSegmentName('\0test');
+            var result = redis.validateSegmentName('\0test');
 
             expect(result).to.be.instanceOf(Error);
             done();
         });
 
-        it('returns null when there aren\'t any errors', (done) => {
+        it('returns null when there aren\'t any errors', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            const result = redis.validateSegmentName('valid');
+            var result = redis.validateSegmentName('valid');
 
             expect(result).to.not.be.instanceOf(Error);
             expect(result).to.equal(null);
@@ -659,18 +644,18 @@ describe('Redis', () => {
         });
     });
 
-    describe('get()', () => {
+    describe('#get', function () {
 
-        it('passes an error to the callback when the connection is closed', (done) => {
+        it('passes an error to the callback when the connection is closed', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            redis.get('test', (err) => {
+            redis.get('test', function (err) {
 
                 expect(err).to.exist();
                 expect(err).to.be.instanceOf(Error);
@@ -679,14 +664,14 @@ describe('Redis', () => {
             });
         });
 
-        it('passes an error to the callback when there is an error returned from getting an item', (done) => {
+        it('passes an error to the callback when there is an error returned from getting an item', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
             redis.client = {
                 get: function (item, callback) {
 
@@ -694,7 +679,7 @@ describe('Redis', () => {
                 }
             };
 
-            redis.get('test', (err) => {
+            redis.get('test', function (err) {
 
                 expect(err).to.exist();
                 expect(err).to.be.instanceOf(Error);
@@ -702,14 +687,14 @@ describe('Redis', () => {
             });
         });
 
-        it('passes an error to the callback when there is an error parsing the result', (done) => {
+        it('passes an error to the callback when there is an error parsing the result', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
             redis.client = {
                 get: function (item, callback) {
 
@@ -717,7 +702,7 @@ describe('Redis', () => {
                 }
             };
 
-            redis.get('test', (err) => {
+            redis.get('test', function (err) {
 
                 expect(err).to.exist();
                 expect(err.message).to.equal('Bad envelope content');
@@ -725,14 +710,14 @@ describe('Redis', () => {
             });
         });
 
-        it('passes an error to the callback when there is an error with the envelope structure (stored)', (done) => {
+        it('passes an error to the callback when there is an error with the envelope structure (stored)', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
             redis.client = {
                 get: function (item, callback) {
 
@@ -740,7 +725,7 @@ describe('Redis', () => {
                 }
             };
 
-            redis.get('test', (err) => {
+            redis.get('test', function (err) {
 
                 expect(err).to.exist();
                 expect(err.message).to.equal('Incorrect envelope structure');
@@ -748,14 +733,14 @@ describe('Redis', () => {
             });
         });
 
-        it('passes an error to the callback when there is an error with the envelope structure (item)', (done) => {
+        it('passes an error to the callback when there is an error with the envelope structure (item)', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
             redis.client = {
                 get: function (item, callback) {
 
@@ -763,7 +748,7 @@ describe('Redis', () => {
                 }
             };
 
-            redis.get('test', (err) => {
+            redis.get('test', function (err) {
 
                 expect(err).to.exist();
                 expect(err.message).to.equal('Incorrect envelope structure');
@@ -771,26 +756,26 @@ describe('Redis', () => {
             });
         });
 
-        it('is able to retrieve an object thats stored when connection is started', (done) => {
+        it('is able to retrieve an object thats stored when connection is started', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379,
                 partition: 'wwwtest'
             };
-            const key = {
+            var key = {
                 id: 'test',
                 segment: 'test'
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            redis.start(() => {
+            redis.start(function () {
 
-                redis.set(key, 'myvalue', 200, (err) => {
+                redis.set(key, 'myvalue', 200, function (err) {
 
                     expect(err).to.not.exist();
-                    redis.get(key, (err, result) => {
+                    redis.get(key, function (err, result) {
 
                         expect(err).to.not.exist();
                         expect(result.item).to.equal('myvalue');
@@ -800,23 +785,23 @@ describe('Redis', () => {
             });
         });
 
-        it('returns null when unable to find the item', (done) => {
+        it('returns null when unable to find the item', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379,
                 partition: 'wwwtest'
             };
-            const key = {
+            var key = {
                 id: 'notfound',
                 segment: 'notfound'
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            redis.start(() => {
+            redis.start(function () {
 
-                redis.get(key, (err, result) => {
+                redis.get(key, function (err, result) {
 
                     expect(err).to.not.exist();
                     expect(result).to.not.exist();
@@ -826,18 +811,18 @@ describe('Redis', () => {
         });
     });
 
-    describe('set()', () => {
+    describe('#set', function () {
 
-        it('passes an error to the callback when the connection is closed', (done) => {
+        it('passes an error to the callback when the connection is closed', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            redis.set('test1', 'test1', 3600, (err) => {
+            redis.set('test1', 'test1', 3600, function (err) {
 
                 expect(err).to.exist();
                 expect(err).to.be.instanceOf(Error);
@@ -846,14 +831,14 @@ describe('Redis', () => {
             });
         });
 
-        it('passes an error to the callback when there is an error returned from setting an item', (done) => {
+        it('passes an error to the callback when there is an error returned from setting an item', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
             redis.client = {
                 set: function (key, item, callback) {
 
@@ -861,7 +846,7 @@ describe('Redis', () => {
                 }
             };
 
-            redis.set('test', 'test', 3600, (err) => {
+            redis.set('test', 'test', 3600, function (err) {
 
                 expect(err).to.exist();
                 expect(err).to.be.instanceOf(Error);
@@ -870,18 +855,18 @@ describe('Redis', () => {
         });
     });
 
-    describe('drop()', () => {
+    describe('#drop', function () {
 
-        it('passes an error to the callback when the connection is closed', (done) => {
+        it('passes an error to the callback when the connection is closed', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            redis.drop('test2', (err) => {
+            redis.drop('test2', function (err) {
 
                 expect(err).to.exist();
                 expect(err).to.be.instanceOf(Error);
@@ -890,14 +875,14 @@ describe('Redis', () => {
             });
         });
 
-        it('deletes the item from redis', (done) => {
+        it('deletes the item from redis', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
             redis.client = {
                 del: function (key, callback) {
 
@@ -905,7 +890,7 @@ describe('Redis', () => {
                 }
             };
 
-            redis.drop('test', (err) => {
+            redis.drop('test', function (err) {
 
                 expect(err).to.not.exist();
                 done();
@@ -913,17 +898,17 @@ describe('Redis', () => {
         });
     });
 
-    describe('generateKey()', () => {
+    describe('generateKey()', function () {
 
-        it('generates the storage key from a given catbox key', (done) => {
+        it('generates the storage key from a given catbox key', function (done) {
 
-            const options = {
+            var options = {
                 partition: 'foo'
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            const key = {
+            var key = {
                 id: 'bar',
                 segment: 'baz'
             };
@@ -932,13 +917,13 @@ describe('Redis', () => {
             done();
         });
 
-        it('generates the storage key from a given catbox key without partition', (done) => {
+        it('generates the storage key from a given catbox key without partition', function (done) {
 
-            const options = {};
+            var options = {};
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            const key = {
+            var key = {
                 id: 'bar',
                 segment: 'baz'
             };
@@ -948,18 +933,18 @@ describe('Redis', () => {
         });
     });
 
-    describe('stop()', () => {
+    describe('#stop', function () {
 
-        it('sets the client to null', (done) => {
+        it('sets the client to null', function (done) {
 
-            const options = {
+            var options = {
                 host: '127.0.0.1',
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            var redis = new Redis(options);
 
-            redis.start(() => {
+            redis.start(function () {
 
                 expect(redis.client).to.exist();
                 redis.stop();
