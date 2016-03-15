@@ -7,6 +7,7 @@ const Code = require('code');
 const Lab = require('lab');
 const Catbox = require('catbox');
 const Redis = require('..');
+const RedisClient = require('redis');
 
 
 // Declare internals
@@ -55,6 +56,39 @@ describe('Redis', () => {
             client.stop();
             expect(client.isReady()).to.equal(false);
             done();
+        });
+    });
+
+    it('allow passing client in option', (done) => {
+
+        const redisClient = RedisClient.createClient();
+
+        let getCalled = false;
+        const _get = redisClient.get;
+        redisClient.get = function (key, callback) {
+
+            getCalled = true;
+            return _get.apply(redisClient, arguments);
+        };
+
+        redisClient.on('error', done);
+        redisClient.once('ready', () => {
+
+            const client = new Catbox.Client(Redis, {
+                client: redisClient
+            });
+            client.start((err) => {
+
+                expect(err).to.not.exist();
+                expect(client.isReady()).to.equal(true);
+                const key = { id: 'x', segment: 'test' };
+                client.get(key, (err, result) => {
+
+                    expect(err).to.equal(null);
+                    expect(getCalled).to.equal(true);
+                    done();
+                });
+            });
         });
     });
 
