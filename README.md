@@ -15,7 +15,7 @@ Lead Maintainer: [Loic Mahieu](https://github.com/LoicMahieu)
 
 ## Tests
 
-The test suite expects a redis server to be running on port 6379.
+The test suite expects a redis server to be running on port 6379 and another redis server listenning to port 6378 and requiring a password: 'secret'.
 
 ```sh
 redis-server&

@@ -9,3 +9,7 @@ node_js:
 
 services:
   - redis
+
+before_script:
+  - redis-server --port 6378 --requirepass secret &
+  - sleep 2
