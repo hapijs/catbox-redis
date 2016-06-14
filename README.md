@@ -18,8 +18,8 @@ Lead Maintainer: [Loic Mahieu](https://github.com/LoicMahieu)
 
 The test suite expects:
 - a redis server to be running on port 6379
-- a redis server listenning to port 6378 and requiring a password: 'secret'
-- a redis server listenning on socket `/tmp/redis.sock`
+- a redis server listening to port 6378 and requiring a password: 'secret'
+- a redis server listening on socket `/tmp/redis.sock`
 
 See [.travis.yml](./.travis.yml)
 
