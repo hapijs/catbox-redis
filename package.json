@@ -17,8 +17,8 @@
     "node": ">=4.0.0"
   },
   "dependencies": {
-    "redis": "2.x.x",
-    "hoek": "4.x.x"
+    "hoek": "4.x.x",
+    "ioredis": "2.x.x"
   },
   "devDependencies": {
     "catbox": "7.x.x",
