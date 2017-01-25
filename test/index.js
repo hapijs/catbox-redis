@@ -520,6 +520,24 @@ describe('Redis', () => {
             });
         });
 
+        it('connects via a Redis URL when one is provided.', (done) => {
+
+            const options = {
+                url: 'redis://127.0.0.1:6379'
+            };
+
+            const redis = new Redis(options);
+
+            redis.start((err) => {
+
+                expect(err).to.not.exist();
+                const client = redis.client;
+                expect(client).to.exist();
+                expect(client.connected).to.equal(true);
+                done();
+            });
+        });
+
         it('does not stops the client on error post connection', (done) => {
 
             const options = {

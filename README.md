@@ -7,6 +7,7 @@ Lead Maintainer: [Loic Mahieu](https://github.com/LoicMahieu)
 
 ## Options
 
+- `url` - the Redis server URL (if `url` is provided, `host`, `port`, and `socket` are ignored)
 - `host` - the Redis server hostname. Defaults to `'127.0.0.1'`.
 - `port` - the Redis server port or unix domain socket path. Defaults to `6379`.
 - `socket` - the unix socket string to connect to (if `socket` is provided, `host` and `port` are ignored)
