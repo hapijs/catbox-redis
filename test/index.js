@@ -92,7 +92,7 @@ describe('Redis', () => {
         });
     });
 
-    it('gets an item after settig it', (done) => {
+    it('gets an item after setting it', (done) => {
 
         const client = new Catbox.Client(Redis);
         client.start((err) => {
