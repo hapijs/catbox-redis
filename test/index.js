@@ -425,6 +425,24 @@ describe('Redis', () => {
             });
         });
 
+        it('does not return error when connection fails in silent startup failure mode', (done) => {
+
+            const options = {
+                host: '127.0.0.1',
+                port: 6380,
+                silentStartupFailure: true
+            };
+
+            const redis = new Redis(options);
+
+            redis.start((err) => {
+
+                expect(err).to.not.exist();
+                expect(redis.client).to.not.exist();
+                done();
+            });
+        });
+
         it('sends auth command when password is provided', (done) => {
 
             const options = {

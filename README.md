@@ -14,6 +14,7 @@ Lead Maintainer: [Loic Mahieu](https://github.com/LoicMahieu)
 - `password` - the Redis authentication password when required.
 - `database` - the Redis database.
 - `partition` - this will store items under keys that start with this value. (Default: '')
+- `silentStartFailure` - ignore startup failures. The cache will be unusable, but it won't prevent the server from starting. (Default: false)
 
 ## Tests
 
