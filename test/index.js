@@ -528,7 +528,6 @@ describe('Redis', () => {
                 expect(err).to.not.exist();
                 const client = redis.client;
                 expect(client).to.exist();
-                expect(client.connected).to.equal(true);
                 done();
             });
         });
