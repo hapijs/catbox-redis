@@ -8,7 +8,7 @@ const Lab = require('lab');
 const Catbox = require('catbox');
 const Redis = require('..');
 const RedisClient = require('ioredis');
-const { EventEmitter } = require('events');
+const EventEmitter = require('events').EventEmitter;
 
 
 // Declare internals
