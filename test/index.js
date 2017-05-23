@@ -543,8 +543,11 @@ describe('Redis', () => {
                 RedisClient.createClient = function (opts) {
 
                     const out = new EventEmitter();
-                    process.nextTick(() => out.emit('ready'));
-                    out.removeAllListeners();
+                    process.nextTick(() => {
+
+                        out.emit('ready');
+                        out.removeAllListeners();
+                    });
                     out.callArgs = opts;
                     return out;
                 };
