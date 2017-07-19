@@ -8,6 +8,7 @@ const Lab = require('lab');
 const Catbox = require('catbox');
 const Redis = require('..');
 const RedisClient = require('ioredis');
+const EventEmitter = require('events').EventEmitter;
 
 
 // Declare internals
@@ -21,6 +22,8 @@ const lab = exports.lab = Lab.script();
 const expect = Code.expect;
 const describe = lab.describe;
 const it = lab.test;
+const before = lab.before;
+const after = lab.after;
 
 
 describe('Redis', () => {
@@ -529,6 +532,61 @@ describe('Redis', () => {
                 const client = redis.client;
                 expect(client).to.exist();
                 done();
+            });
+        });
+
+        describe('', () => {
+
+            const oldCreateClient = RedisClient.createClient;
+            before((done) => {
+
+                RedisClient.createClient = function (opts) {
+
+                    const out = new EventEmitter();
+                    process.nextTick(() => {
+
+                        out.emit('ready');
+                        out.removeAllListeners();
+                    });
+                    out.callArgs = opts;
+                    return out;
+                };
+                done();
+            });
+
+            after((done) => {
+
+                RedisClient.createClient = oldCreateClient;
+                done();
+            });
+
+            it('connects to a sentinel cluster.', (done) => {
+
+                const options = {
+                    sentinels: [
+                        {
+                            host: '127.0.0.1',
+                            port: 26379
+                        },
+                        {
+                            host: '127.0.0.2',
+                            port: 26379
+                        }
+                    ],
+                    sentinelName: 'mymaster'
+                };
+
+                const redis = new Redis(options);
+
+                redis.start((err) => {
+
+                    expect(err).to.not.exist();
+                    const client = redis.client;
+                    expect(client).to.exist();
+                    expect(client.callArgs.sentinels).to.equal(options.sentinels);
+                    expect(client.callArgs.name).to.equal(options.sentinelName);
+                    done();
+                });
             });
         });
 
