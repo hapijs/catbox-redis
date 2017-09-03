@@ -980,6 +980,31 @@ describe('Redis', () => {
             });
         });
 
+        it('passes an error to the callback when keys call fails', (done) => {
+
+            const options = {
+                host: '127.0.0.1',
+                port: 6379
+            };
+
+            const redis = new Redis(options);
+            redis.client = {
+                keys(key, callback) {
+
+                    callback(new Error('Keys issue'));
+                }
+            };
+
+            redis.dropSegment('test2', (err) => {
+
+                expect(err).to.exist();
+                expect(err).to.be.instanceOf(Error);
+                expect(err.message).to.equal('Keys issue');
+                done();
+            });
+        });
+
+
         it('deletes the segment from redis', (done) => {
 
             const options = {
