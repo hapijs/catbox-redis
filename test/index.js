@@ -960,6 +960,56 @@ describe('Redis', () => {
         });
     });
 
+    describe('dropSegment()', () => {
+
+        it('passes an error to the callback when the connection is closed', (done) => {
+
+            const options = {
+                host: '127.0.0.1',
+                port: 6379
+            };
+
+            const redis = new Redis(options);
+
+            redis.dropSegment('test2', (err) => {
+
+                expect(err).to.exist();
+                expect(err).to.be.instanceOf(Error);
+                expect(err.message).to.equal('Connection not started');
+                done();
+            });
+        });
+
+        it('deletes the segment from redis', (done) => {
+
+            const options = {
+                host: '127.0.0.1',
+                port: 6379
+            };
+
+            const redis = new Redis(options);
+
+            redis.start(() => {
+
+                redis.set({ segment: 'segment', id: 'testing' }, 'foo', 3600, (setErr) => {
+
+                    expect(setErr).to.not.exist();
+
+                    redis.dropSegment('segment', (dropErr) => {
+
+                        expect(dropErr).to.not.exist();
+
+                        redis.get({ segment: 'segment', id: 'testing' }, (getErr, val) => {
+
+                            expect(val).to.not.exist();
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+    });
+
     describe('generateKey()', () => {
 
         it('generates the storage key from a given catbox key', (done) => {
