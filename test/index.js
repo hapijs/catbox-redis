@@ -747,6 +747,25 @@ describe('Redis', () => {
             const result = await redis.get(key);
             expect(result).to.not.exist();
         });
+
+        it('can store and retrieve falsy values such as int 0', async () => {
+
+            const options = {
+                host: '127.0.0.1',
+                port: 6379,
+                partition: 'wwwtest'
+            };
+            const key = {
+                id: 'test',
+                segment: 'test'
+            };
+
+            const redis = new Redis(options);
+            await redis.start();
+            await redis.set(key, 0, 200);
+            const result = await redis.get(key);
+            expect(result.item).to.equal(0);
+        });
     });
 
     describe('set()', () => {
