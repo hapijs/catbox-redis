@@ -273,9 +273,9 @@ describe('Redis', () => {
         client.stop();
 
         const key = { id: 'x', segment: 'test' };
-        await expect((() => {
+        await expect((async () => {
 
-            return client.connection.drop(key);
+            await client.connection.drop(key);
         })()).to.reject(Error, 'Connection not started');
     });
 
@@ -620,9 +620,9 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            await expect((() => {
+            await expect((async () => {
 
-                return redis.get('test');
+                await redis.get('test');
             })()).to.reject(Error, 'Connection not started');
         });
 
@@ -779,9 +779,9 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            await expect((() => {
+            await expect((async () => {
 
-                return redis.set('test1', 'test1', 3600);
+                await redis.set('test1', 'test1', 3600);
             })()).to.reject(Error, 'Connection not started');
         });
 
@@ -818,9 +818,9 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            await expect((() => {
+            await expect((async () => {
 
-                return redis.drop('test2');
+                await redis.drop('test2');
             })()).to.reject(Error, 'Connection not started');
         });
 
