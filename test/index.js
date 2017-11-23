@@ -26,9 +26,20 @@ const before = lab.before;
 const after = lab.after;
 
 
+// Utils
+
+const timeoutPromise = (timer) => {
+
+    return new Promise((resolve) => {
+
+        setTimeout(resolve, timer);
+    });
+};
+
+
 describe('Redis', () => {
 
-    it('throws an error if not created with new', (done) => {
+    it('throws an error if not created with new', () => {
 
         const fn = () => {
 
@@ -36,301 +47,239 @@ describe('Redis', () => {
         };
 
         expect(fn).to.throw(Error);
-        done();
     });
 
-    it('creates a new connection', (done) => {
+    it('creates a new connection', async () => {
 
         const client = new Catbox.Client(Redis);
-        client.start((err) => {
-
-            expect(client.isReady()).to.equal(true);
-            done(err);
-        });
+        await client.start();
+        expect(client.isReady()).to.equal(true);
     });
 
-    it('closes the connection', (done) => {
+    it('closes the connection', async () => {
 
         const client = new Catbox.Client(Redis);
-        client.start((err) => {
-
-            expect(err).to.not.exist();
-            expect(client.isReady()).to.equal(true);
-            client.stop();
-            expect(client.isReady()).to.equal(false);
-            done();
-        });
+        await client.start();
+        expect(client.isReady()).to.equal(true);
+        client.stop();
+        expect(client.isReady()).to.equal(false);
     });
 
-    it('allow passing client in option', (done) => {
+    it('allow passing client in option', () => {
 
-        const redisClient = RedisClient.createClient();
+        return new Promise((resolve, reject) =>  {
 
-        let getCalled = false;
-        const _get = redisClient.get;
-        redisClient.get = function (key, callback) {
+            const redisClient = RedisClient.createClient();
 
-            getCalled = true;
-            return _get.apply(redisClient, arguments);
-        };
+            let getCalled = false;
+            const _get = redisClient.get;
+            redisClient.get = function (key, callback) {
 
-        redisClient.on('error', done);
-        redisClient.once('ready', () => {
+                getCalled = true;
+                return _get.apply(redisClient, arguments);
+            };
 
-            const client = new Catbox.Client(Redis, {
-                client: redisClient
+            redisClient.on('error', (err) => {
+
+                reject(err);
             });
-            client.start((err) => {
+            redisClient.once('ready', async () => {
 
-                expect(err).to.not.exist();
+                const client = new Catbox.Client(Redis, {
+                    client: redisClient
+                });
+                await client.start();
                 expect(client.isReady()).to.equal(true);
                 const key = { id: 'x', segment: 'test' };
-                client.get(key, (err, result) => {
+                await client.get(key);
+                expect(getCalled).to.equal(true);
 
-                    expect(err).to.equal(null);
-                    expect(getCalled).to.equal(true);
-                    done();
-                });
+                resolve();
             });
         });
     });
 
-    it('gets an item after setting it', (done) => {
+    it('gets an item after setting it', async () => {
 
         const client = new Catbox.Client(Redis);
-        client.start((err) => {
+        await client.start();
 
-            expect(err).to.not.exist();
-            const key = { id: 'x', segment: 'test' };
-            client.set(key, '123', 500, (err) => {
+        const key = { id: 'x', segment: 'test' };
+        await client.set(key, '123', 500);
 
-                expect(err).to.not.exist();
-                client.get(key, (err, result) => {
-
-                    expect(err).to.equal(null);
-                    expect(result.item).to.equal('123');
-                    done();
-                });
-            });
-        });
+        const result = await client.get(key);
+        expect(result.item).to.equal('123');
     });
 
-    it('fails setting an item circular references', (done) => {
+    it('fails setting an item circular references', async () => {
 
         const client = new Catbox.Client(Redis);
-        client.start((err) => {
+        await client.start();
+        const key = { id: 'x', segment: 'test' };
+        const value = { a: 1 };
+        value.b = value;
 
-            expect(err).to.not.exist();
-            const key = { id: 'x', segment: 'test' };
-            const value = { a: 1 };
-            value.b = value;
-            client.set(key, value, 10, (err) => {
+        await expect((() => {
 
-                expect(err.message).to.equal('Converting circular structure to JSON');
-                done();
-            });
-        });
+            return client.set(key, value, 10);
+        })()).to.reject(Error, 'Converting circular structure to JSON');
     });
 
-    it('ignored starting a connection twice on same event', (done) => {
+    it('ignored starting a connection twice on same event', () => {
 
-        const client = new Catbox.Client(Redis);
-        let x = 2;
-        const start = () => {
+        return new Promise((resolve, reject) => {
 
-            client.start((err) => {
+            const client = new Catbox.Client(Redis);
+            let x = 2;
+            const start = async () => {
 
-                expect(err).to.not.exist();
+                await client.start();
                 expect(client.isReady()).to.equal(true);
                 --x;
                 if (!x) {
-                    done();
+                    resolve();
                 }
-            });
-        };
+            };
 
-        start();
-        start();
-    });
-
-    it('ignored starting a connection twice chained', (done) => {
-
-        const client = new Catbox.Client(Redis);
-        client.start((err) => {
-
-            expect(err).to.not.exist();
-            expect(client.isReady()).to.equal(true);
-
-            client.start((err) => {
-
-                expect(err).to.not.exist();
-                expect(client.isReady()).to.equal(true);
-                done();
-            });
+            start();
+            start();
         });
     });
 
-    it('returns not found on get when using null key', (done) => {
+    it('ignored starting a connection twice chained', async () => {
 
         const client = new Catbox.Client(Redis);
-        client.start((err) => {
 
-            expect(err).to.not.exist();
-            client.get(null, (err, result) => {
+        await client.start();
+        expect(client.isReady()).to.equal(true);
 
-                expect(err).to.equal(null);
-                expect(result).to.equal(null);
-                done();
-            });
-        });
+        await client.start();
+        expect(client.isReady()).to.equal(true);
     });
 
-    it('returns not found on get when item expired', (done) => {
+    it('returns not found on get when using null key', async () => {
 
         const client = new Catbox.Client(Redis);
-        client.start((err) => {
+        await client.start();
 
-            expect(err).to.not.exist();
-            const key = { id: 'x', segment: 'test' };
-            client.set(key, 'x', 1, (err) => {
+        const result = await client.get(null);
 
-                expect(err).to.not.exist();
-                setTimeout(() => {
-
-                    client.get(key, (err, result) => {
-
-                        expect(err).to.equal(null);
-                        expect(result).to.equal(null);
-                        done();
-                    });
-                }, 2);
-            });
-        });
+        expect(result).to.equal(null);
     });
 
-    it('returns error on set when using null key', (done) => {
+    it('returns not found on get when item expired', async () => {
 
         const client = new Catbox.Client(Redis);
-        client.start((err) => {
+        await client.start();
 
-            expect(err).to.not.exist();
-            client.set(null, {}, 1000, (err) => {
+        const key = { id: 'x', segment: 'test' };
+        await client.set(key, 'x', 1);
 
-                expect(err instanceof Error).to.equal(true);
-                done();
-            });
-        });
+        await timeoutPromise(2);
+        const result = await client.get(key);
+        expect(result).to.equal(null);
     });
 
-    it('returns error on get when using invalid key', (done) => {
+    it('returns error on set when using null key', async () => {
 
         const client = new Catbox.Client(Redis);
-        client.start((err) => {
+        await client.start();
 
-            expect(err).to.not.exist();
-            client.get({}, (err) => {
+        await expect((() => {
 
-                expect(err instanceof Error).to.equal(true);
-                done();
-            });
-        });
+            return client.set(null, {}, 1000);
+        })()).to.reject(Error);
     });
 
-    it('returns error on drop when using invalid key', (done) => {
+    it('returns error on get when using invalid key', async () => {
 
         const client = new Catbox.Client(Redis);
-        client.start((err) => {
+        await client.start();
 
-            expect(err).to.not.exist();
-            client.drop({}, (err) => {
+        await expect((() => {
 
-                expect(err instanceof Error).to.equal(true);
-                done();
-            });
-        });
+            return client.get({});
+        })()).to.reject(Error);
     });
 
-    it('returns error on set when using invalid key', (done) => {
+    it('returns error on drop when using invalid key', async () => {
 
         const client = new Catbox.Client(Redis);
-        client.start((err) => {
+        await client.start();
 
-            expect(err).to.not.exist();
-            client.set({}, {}, 1000, (err) => {
+        await expect((() => {
 
-                expect(err instanceof Error).to.equal(true);
-                done();
-            });
-        });
+            return client.drop({});
+        })()).to.reject(Error);
     });
 
-    it('ignores set when using non-positive ttl value', (done) => {
+    it('returns error on set when using invalid key', async () => {
 
         const client = new Catbox.Client(Redis);
-        client.start((err) => {
+        await client.start();
 
-            expect(err).to.not.exist();
-            const key = { id: 'x', segment: 'test' };
-            client.set(key, 'y', 0, (err) => {
+        await expect((() => {
 
-                expect(err).to.not.exist();
-                done();
-            });
-        });
+            return client.set({}, {}, 1000);
+        })()).to.reject(Error);
     });
 
-    it('returns error on drop when using null key', (done) => {
+    it('ignores set when using non-positive ttl value', async () => {
 
         const client = new Catbox.Client(Redis);
-        client.start((err) => {
-
-            expect(err).to.not.exist();
-            client.drop(null, (err) => {
-
-                expect(err instanceof Error).to.equal(true);
-                done();
-            });
-        });
+        await client.start();
+        const key = { id: 'x', segment: 'test' };
+        await client.set(key, 'y', 0);
     });
 
-    it('returns error on get when stopped', (done) => {
+    it('returns error on drop when using null key', async () => {
+
+        const client = new Catbox.Client(Redis);
+        await client.start();
+
+        await expect((() => {
+
+            return client.drop(null);
+        })()).to.reject(Error);
+    });
+
+    it('returns error on get when stopped', async () => {
 
         const client = new Catbox.Client(Redis);
         client.stop();
-        const key = { id: 'x', segment: 'test' };
-        client.connection.get(key, (err, result) => {
 
-            expect(err).to.exist();
-            expect(result).to.not.exist();
-            done();
-        });
+        const key = { id: 'x', segment: 'test' };
+        await expect((() => {
+
+            return client.connection.get(key);
+        })()).to.reject(Error, 'Connection not started');
     });
 
-    it('returns error on set when stopped', (done) => {
+    it('returns error on set when stopped', async () => {
 
         const client = new Catbox.Client(Redis);
         client.stop();
-        const key = { id: 'x', segment: 'test' };
-        client.connection.set(key, 'y', 1, (err) => {
 
-            expect(err).to.exist();
-            done();
-        });
+        const key = { id: 'x', segment: 'test' };
+        await expect((() => {
+
+            return client.connection.set(key, 'y', 1);
+        })()).to.reject(Error, 'Connection not started');
     });
 
-    it('returns error on drop when stopped', (done) => {
+    it('returns error on drop when stopped', async () => {
 
         const client = new Catbox.Client(Redis);
         client.stop();
-        const key = { id: 'x', segment: 'test' };
-        client.connection.drop(key, (err) => {
 
-            expect(err).to.exist();
-            done();
-        });
+        const key = { id: 'x', segment: 'test' };
+        await expect((async () => {
+
+            await client.connection.drop(key);
+        })()).to.reject(Error, 'Connection not started');
     });
 
-    it('returns error on missing segment name', (done) => {
+    it('returns error on missing segment name', () => {
 
         const config = {
             expiresIn: 50000
@@ -341,10 +290,9 @@ describe('Redis', () => {
             new Catbox.Policy(config, client, '');
         };
         expect(fn).to.throw(Error);
-        done();
     });
 
-    it('returns error on bad segment name', (done) => {
+    it('returns error on bad segment name', () => {
 
         const config = {
             expiresIn: 50000
@@ -355,23 +303,22 @@ describe('Redis', () => {
             new Catbox.Policy(config, client, 'a\0b');
         };
         expect(fn).to.throw(Error);
-        done();
     });
 
-    it('returns error when cache item dropped while stopped', (done) => {
+    it('returns error when cache item dropped while stopped', async () => {
 
         const client = new Catbox.Client(Redis);
         client.stop();
-        client.drop('a', (err) => {
 
-            expect(err).to.exist();
-            done();
-        });
+        await expect((() => {
+
+            return client.drop('a');
+        })()).to.reject(Error);
     });
 
     describe('start()', () => {
 
-        it('sets client to when the connection succeeds', (done) => {
+        it('sets client to when the connection succeeds', async () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -380,15 +327,11 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            redis.start((err) => {
-
-                expect(err).to.not.exist();
-                expect(redis.client).to.exist();
-                done();
-            });
+            await redis.start();
+            expect(redis.client).to.exist();
         });
 
-        it('reuses the client when a connection is already started', (done) => {
+        it('reuses the client when a connection is already started', async () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -397,20 +340,14 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            redis.start((err) => {
+            await redis.start();
+            const client = redis.client;
 
-                expect(err).to.not.exist();
-                const client = redis.client;
-
-                redis.start(() => {
-
-                    expect(client).to.equal(redis.client);
-                    done();
-                });
-            });
+            await redis.start();
+            expect(client).to.equal(redis.client);
         });
 
-        it('returns an error when connection fails', (done) => {
+        it('returns an error when connection fails', async () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -419,16 +356,15 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            redis.start((err) => {
+            await expect((() => {
 
-                expect(err).to.exist();
-                expect(err).to.be.instanceOf(Error);
-                expect(redis.client).to.not.exist();
-                done();
-            });
+                return redis.start();
+            })()).to.reject(Error);
+
+            expect(redis.client).to.not.exist();
         });
 
-        it('sends auth command when password is provided', (done) => {
+        it('sends auth command when password is provided', async () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -438,21 +374,20 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            const log = console.log;
-            console.log = function (message) {
+            const warn = console.warn;
+            let consoleMessage = '';
+            console.warn = function (message) {
 
-                expect(message).to.contain('Warning');
-                console.log = log;
+                consoleMessage += message;
             };
 
-            redis.start((err) => {
+            await redis.start();
 
-                expect(err).to.not.exist();
-                done();
-            });
+            console.warn = warn;
+            expect(consoleMessage).to.contain('Redis server does not require a password, but a password was supplied.');
         });
 
-        it('fails in error when auth is not correct', (done) => {
+        it('fails in error when auth is not correct', async () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -462,16 +397,15 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            redis.start((err) => {
+            await expect((() => {
 
-                expect(err).to.exist();
-                expect(err).to.be.instanceOf(Error);
-                expect(redis.client).to.not.exist();
-                done();
-            });
+                return redis.start();
+            })()).to.reject(Error);
+
+            expect(redis.client).to.not.exist();
         });
 
-        it('success when auth is correct', (done) => {
+        it('success when auth is correct', async () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -481,10 +415,11 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            redis.start(done);
+            await redis.start();
+            expect(redis.client).to.exist();
         });
 
-        it('sends select command when database is provided', (done) => {
+        it('sends select command when database is provided', async () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -494,14 +429,11 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            redis.start(() => {
-
-                done();
-
-            });
+            await redis.start();
+            expect(redis.client).to.exist();
         });
 
-        it('connects to a unix domain socket when one is provided.', (done) => {
+        it('connects to a unix domain socket when one is provided.', async () => {
 
             const options = {
                 socket: '/tmp/redis.sock'
@@ -509,16 +441,11 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            redis.start((err) => {
-
-                expect(err).to.not.exist();
-                const client = redis.client;
-                expect(client).to.exist();
-                done();
-            });
+            await redis.start();
+            expect(redis.client).to.exist();
         });
 
-        it('connects via a Redis URL when one is provided.', (done) => {
+        it('connects via a Redis URL when one is provided.', async () => {
 
             const options = {
                 url: 'redis://127.0.0.1:6379'
@@ -526,41 +453,39 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            redis.start((err) => {
-
-                expect(err).to.not.exist();
-                const client = redis.client;
-                expect(client).to.exist();
-                done();
-            });
+            await redis.start();
+            expect(redis.client).to.exist();
         });
 
         describe('', () => {
 
             const oldCreateClient = RedisClient.createClient;
-            before((done) => {
+            before(() => {
 
-                RedisClient.createClient = function (opts) {
+                return new Promise((resolve, reject) => {
 
-                    const out = new EventEmitter();
-                    process.nextTick(() => {
+                    RedisClient.createClient = function (opts) {
 
-                        out.emit('ready');
-                        out.removeAllListeners();
-                    });
-                    out.callArgs = opts;
-                    return out;
-                };
-                done();
+                        const out = new EventEmitter();
+                        process.nextTick(() => {
+
+
+                            out.emit('ready');
+                            out.removeAllListeners();
+                        });
+                        out.callArgs = opts;
+                        return out;
+                    };
+                    resolve();
+                });
             });
 
-            after((done) => {
+            after(() => {
 
                 RedisClient.createClient = oldCreateClient;
-                done();
             });
 
-            it('connects to a sentinel cluster.', (done) => {
+            it('connects to a sentinel cluster.', async () => {
 
                 const options = {
                     sentinels: [
@@ -578,19 +503,15 @@ describe('Redis', () => {
 
                 const redis = new Redis(options);
 
-                redis.start((err) => {
-
-                    expect(err).to.not.exist();
-                    const client = redis.client;
-                    expect(client).to.exist();
-                    expect(client.callArgs.sentinels).to.equal(options.sentinels);
-                    expect(client.callArgs.name).to.equal(options.sentinelName);
-                    done();
-                });
+                await redis.start();
+                const client = redis.client;
+                expect(client).to.exist();
+                expect(client.callArgs.sentinels).to.equal(options.sentinels);
+                expect(client.callArgs.name).to.equal(options.sentinelName);
             });
         });
 
-        it('does not stops the client on error post connection', (done) => {
+        it('does not stops the client on error post connection', async () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -599,21 +520,17 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            redis.start((err) => {
+            await redis.start();
+            expect(redis.client).to.exist();
 
-                expect(err).to.not.exist();
-                expect(redis.client).to.exist();
-
-                redis.client.emit('error', new Error('injected'));
-                expect(redis.client).to.exist();
-                done();
-            });
+            redis.client.emit('error', new Error('injected'));
+            expect(redis.client).to.exist();
         });
     });
 
     describe('isReady()', () => {
 
-        it('returns true when when connected', (done) => {
+        it('returns true when when connected', async () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -622,18 +539,13 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            redis.start((err) => {
-
-                expect(err).to.not.exist();
-                expect(redis.isReady()).to.equal(true);
-
-                redis.stop();
-
-                done();
-            });
+            await redis.start();
+            expect(redis.client).to.exist();
+            expect(redis.isReady()).to.equal(true);
+            redis.stop();
         });
 
-        it('returns false when stopped', (done) => {
+        it('returns false when stopped', async () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -642,23 +554,17 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            redis.start((err) => {
-
-                expect(err).to.not.exist();
-                expect(redis.isReady()).to.equal(true);
-
-                redis.stop();
-
-                expect(redis.isReady()).to.equal(false);
-
-                done();
-            });
+            await redis.start();
+            expect(redis.client).to.exist();
+            expect(redis.isReady()).to.equal(true);
+            redis.stop();
+            expect(redis.isReady()).to.equal(false);
         });
     });
 
     describe('validateSegmentName()', () => {
 
-        it('returns an error when the name is empty', (done) => {
+        it('returns an error when the name is empty', () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -671,10 +577,9 @@ describe('Redis', () => {
 
             expect(result).to.be.instanceOf(Error);
             expect(result.message).to.equal('Empty string');
-            done();
         });
 
-        it('returns an error when the name has a null character', (done) => {
+        it('returns an error when the name has a null character', () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -686,10 +591,9 @@ describe('Redis', () => {
             const result = redis.validateSegmentName('\0test');
 
             expect(result).to.be.instanceOf(Error);
-            done();
         });
 
-        it('returns null when there aren\'t any errors', (done) => {
+        it('returns null when there aren\'t any errors', () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -702,13 +606,12 @@ describe('Redis', () => {
 
             expect(result).to.not.be.instanceOf(Error);
             expect(result).to.equal(null);
-            done();
         });
     });
 
     describe('get()', () => {
 
-        it('passes an error to the callback when the connection is closed', (done) => {
+        it('returns a promise that rejects when the connection is closed', async () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -717,39 +620,13 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            redis.get('test', (err) => {
+            await expect((async () => {
 
-                expect(err).to.exist();
-                expect(err).to.be.instanceOf(Error);
-                expect(err.message).to.equal('Connection not started');
-                done();
-            });
+                await redis.get('test');
+            })()).to.reject(Error, 'Connection not started');
         });
 
-        it('passes an error to the callback when there is an error returned from getting an item', (done) => {
-
-            const options = {
-                host: '127.0.0.1',
-                port: 6379
-            };
-
-            const redis = new Redis(options);
-            redis.client = {
-                get: function (item, callback) {
-
-                    callback(new Error());
-                }
-            };
-
-            redis.get('test', (err) => {
-
-                expect(err).to.exist();
-                expect(err).to.be.instanceOf(Error);
-                done();
-            });
-        });
-
-        it('passes an error to the callback when there is an error parsing the result', (done) => {
+        it('returns a promise that rejects when there is an error returned from getting an item', async () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -758,21 +635,19 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
             redis.client = {
-                get: function (item, callback) {
+                get: function (item) {
 
-                    callback(null, 'test');
+                    return Promise.reject(Error());
                 }
             };
 
-            redis.get('test', (err) => {
+            await expect((() => {
 
-                expect(err).to.exist();
-                expect(err.message).to.equal('Bad envelope content');
-                done();
-            });
+                return redis.get('test');
+            })()).to.reject(Error);
         });
 
-        it('passes an error to the callback when there is an error with the envelope structure (stored)', (done) => {
+        it('returns a promise that rejects when there is an error parsing the result', async () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -781,21 +656,20 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
             redis.client = {
-                get: function (item, callback) {
 
-                    callback(null, '{ "item": "false" }');
+                get: function (item) {
+
+                    return Promise.resolve('test');
                 }
             };
 
-            redis.get('test', (err) => {
+            await expect((() => {
 
-                expect(err).to.exist();
-                expect(err.message).to.equal('Incorrect envelope structure');
-                done();
-            });
+                return redis.get('test');
+            })()).to.reject(Error, 'Bad envelope content');
         });
 
-        it('passes an error to the callback when there is an error with the envelope structure (item)', (done) => {
+        it('returns a promise that rejects when there is an error with the envelope structure (stored)', async () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -804,21 +678,40 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
             redis.client = {
-                get: function (item, callback) {
+                get: function (item) {
 
-                    callback(null, '{ "stored": "123" }');
+                    return Promise.resolve('{ "item": "false" }');
                 }
             };
 
-            redis.get('test', (err) => {
+            await expect((() => {
 
-                expect(err).to.exist();
-                expect(err.message).to.equal('Incorrect envelope structure');
-                done();
-            });
+                return redis.get('test');
+            })()).to.reject(Error, 'Incorrect envelope structure');
         });
 
-        it('is able to retrieve an object thats stored when connection is started', (done) => {
+        it('returns a promise that rejects when there is an error with the envelope structure (item)', async () => {
+
+            const options = {
+                host: '127.0.0.1',
+                port: 6379
+            };
+
+            const redis = new Redis(options);
+            redis.client = {
+                get: function (item) {
+
+                    return Promise.resolve('{ "stored": "123" }');
+                }
+            };
+
+            await expect((() => {
+
+                return redis.get('test');
+            })()).to.reject(Error, 'Incorrect envelope structure');
+        });
+
+        it('is able to retrieve an object thats stored when connection is started', async () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -831,23 +724,13 @@ describe('Redis', () => {
             };
 
             const redis = new Redis(options);
-
-            redis.start(() => {
-
-                redis.set(key, 'myvalue', 200, (err) => {
-
-                    expect(err).to.not.exist();
-                    redis.get(key, (err, result) => {
-
-                        expect(err).to.not.exist();
-                        expect(result.item).to.equal('myvalue');
-                        done();
-                    });
-                });
-            });
+            await redis.start();
+            await redis.set(key, 'myvalue', 200);
+            const result = await redis.get(key);
+            expect(result.item).to.equal('myvalue');
         });
 
-        it('returns null when unable to find the item', (done) => {
+        it('returns null when unable to find the item', async () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -860,22 +743,34 @@ describe('Redis', () => {
             };
 
             const redis = new Redis(options);
+            await redis.start();
+            const result = await redis.get(key);
+            expect(result).to.not.exist();
+        });
 
-            redis.start(() => {
+        it('can store and retrieve falsy values such as int 0', async () => {
 
-                redis.get(key, (err, result) => {
+            const options = {
+                host: '127.0.0.1',
+                port: 6379,
+                partition: 'wwwtest'
+            };
+            const key = {
+                id: 'test',
+                segment: 'test'
+            };
 
-                    expect(err).to.not.exist();
-                    expect(result).to.not.exist();
-                    done();
-                });
-            });
+            const redis = new Redis(options);
+            await redis.start();
+            await redis.set(key, 0, 200);
+            const result = await redis.get(key);
+            expect(result.item).to.equal(0);
         });
     });
 
     describe('set()', () => {
 
-        it('passes an error to the callback when the connection is closed', (done) => {
+        it('returns a promise that rejects when the connection is closed', async () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -884,16 +779,13 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            redis.set('test1', 'test1', 3600, (err) => {
+            await expect((async () => {
 
-                expect(err).to.exist();
-                expect(err).to.be.instanceOf(Error);
-                expect(err.message).to.equal('Connection not started');
-                done();
-            });
+                await redis.set('test1', 'test1', 3600);
+            })()).to.reject(Error, 'Connection not started');
         });
 
-        it('passes an error to the callback when there is an error returned from setting an item', (done) => {
+        it('returns a promise that rejects when there is an error returned from setting an item', async () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -904,22 +796,20 @@ describe('Redis', () => {
             redis.client = {
                 set: function (key, item, callback) {
 
-                    callback(new Error());
+                    return Promise.reject(Error());
                 }
             };
 
-            redis.set('test', 'test', 3600, (err) => {
+            await expect((() => {
 
-                expect(err).to.exist();
-                expect(err).to.be.instanceOf(Error);
-                done();
-            });
+                return redis.set('test', 'test', 3600);
+            })()).to.reject(Error);
         });
     });
 
     describe('drop()', () => {
 
-        it('passes an error to the callback when the connection is closed', (done) => {
+        it('returns a promise that rejects when the connection is closed', async () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -928,16 +818,13 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            redis.drop('test2', (err) => {
+            await expect((async () => {
 
-                expect(err).to.exist();
-                expect(err).to.be.instanceOf(Error);
-                expect(err.message).to.equal('Connection not started');
-                done();
-            });
+                await redis.drop('test2');
+            })()).to.reject(Error, 'Connection not started');
         });
 
-        it('deletes the item from redis', (done) => {
+        it('deletes the item from redis', async () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -946,23 +833,19 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
             redis.client = {
-                del: function (key, callback) {
+                del: function (key) {
 
-                    callback(null, null);
+                    return Promise.resolve(null);
                 }
             };
 
-            redis.drop('test', (err) => {
-
-                expect(err).to.not.exist();
-                done();
-            });
+            await redis.drop('test');
         });
     });
 
     describe('generateKey()', () => {
 
-        it('generates the storage key from a given catbox key', (done) => {
+        it('generates the storage key from a given catbox key', () => {
 
             const options = {
                 partition: 'foo'
@@ -976,10 +859,9 @@ describe('Redis', () => {
             };
 
             expect(redis.generateKey(key)).to.equal('foo:baz:bar');
-            done();
         });
 
-        it('generates the storage key from a given catbox key without partition', (done) => {
+        it('generates the storage key from a given catbox key without partition', () => {
 
             const options = {};
 
@@ -991,13 +873,12 @@ describe('Redis', () => {
             };
 
             expect(redis.generateKey(key)).to.equal('baz:bar');
-            done();
         });
     });
 
     describe('stop()', () => {
 
-        it('sets the client to null', (done) => {
+        it('sets the client to null', async () => {
 
             const options = {
                 host: '127.0.0.1',
@@ -1006,13 +887,10 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            redis.start(() => {
-
-                expect(redis.client).to.exist();
-                redis.stop();
-                expect(redis.client).to.not.exist();
-                done();
-            });
+            await redis.start();
+            expect(redis.client).to.exist();
+            redis.stop();
+            expect(redis.client).to.not.exist();
         });
     });
 });
