@@ -465,6 +465,7 @@ describe('Redis', () => {
             const options = {
                 host: '127.0.0.1',
                 port: 6378,
+                password: 'secret',
                 readReplica: {
                     host: '127.0.0.1',
                     port: 6379,
