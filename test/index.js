@@ -9,7 +9,7 @@ const Catbox = require('catbox');
 const Redis = require('..');
 const RedisClient = require('ioredis');
 const EventEmitter = require('events').EventEmitter;
-
+const Sinon = require('sinon');
 
 // Declare internals
 
@@ -316,6 +316,238 @@ describe('Redis', () => {
         })()).to.reject(Error);
     });
 
+    describe('read replica', () => {
+
+        it('creates a connection', async () => {
+
+            const options = {
+                readReplica: {
+                    host: '127.0.0.1',
+                    port: 6379
+                }
+            };
+
+            const redis = new Redis(options);
+            const client = new Catbox.Client(redis);
+            await client.start();
+            expect(redis.readClient).to.exist();
+            expect(client.isReady()).to.equal(true);
+        });
+
+        it('closes the connection', async () => {
+
+            const options = {
+                readReplica: {
+                    host: '127.0.0.1',
+                    port: 6379
+                }
+            };
+
+            const redis = new Redis(options);
+            const client = new Catbox.Client(redis);
+            await client.start();
+            expect(client.isReady()).to.equal(true);
+            client.stop();
+            expect(redis.readClient).to.not.exist();
+            expect(client.isReady()).to.equal(false);
+        });
+
+        it('can be stopped', async () => {
+
+            const options = {
+                host: '127.0.0.1',
+                port: 6379,
+                readReplica: {
+                    host: '127.0.0.1',
+                    port: 6379
+                }
+            };
+
+            const redis = new Redis(options);
+
+            await redis.start();
+            expect(redis.readClient).to.exist();
+            expect(redis.isReady()).to.equal(true);
+            redis.stop();
+            expect(redis.readClient).to.not.exist();
+            expect(redis.isReady()).to.equal(false);
+        });
+
+        it('sets client to when the connection succeeds', async () => {
+
+            const options = {
+                host: '127.0.0.1',
+                port: 6379,
+                readReplica: {
+                    host: '127.0.0.1',
+                    port: 6379
+                }
+            };
+
+            const redis = new Redis(options);
+
+            await redis.start();
+            expect(redis.readClient).to.exist();
+        });
+
+        it('returns an error when connection fails', async () => {
+
+            const options = {
+                host: '127.0.0.1',
+                port: 6380,
+                readReplica: {
+                    host: '127.0.0.1',
+                    port: 6379
+                }
+            };
+
+            const redis = new Redis(options);
+
+            await expect((() => {
+
+                return redis.start();
+            })()).to.reject(Error);
+
+            expect(redis.readClient).to.not.exist();
+        });
+
+        it('sends auth command when password is provided', async () => {
+
+            const options = {
+                host: '127.0.0.1',
+                port: 6379,
+                readReplica: {
+                    host: '127.0.0.1',
+                    port: 6379,
+                    password: 'wrongpassword'
+                }
+            };
+
+            const redis = new Redis(options);
+
+            const warn = console.warn;
+            let consoleMessage = '';
+            console.warn = function (message) {
+
+                consoleMessage += message;
+            };
+
+            await redis.start();
+
+            console.warn = warn;
+            expect(consoleMessage).to.contain('Redis server does not require a password, but a password was supplied.');
+        });
+
+        it('fails in error when auth is not correct', async () => {
+
+            const options = {
+                host: '127.0.0.1',
+                port: 6378,
+                readReplica: {
+                    host: '127.0.0.1',
+                    port: 6379,
+                    password: 'foo'
+                }
+            };
+
+            const redis = new Redis(options);
+
+            await expect((() => {
+
+                return redis.start();
+            })()).to.reject(Error);
+
+            expect(redis.readClient).to.not.exist();
+        });
+
+        it('success when auth is correct', async () => {
+
+            const options = {
+                host: '127.0.0.1',
+                port: 6378,
+                readReplica: {
+                    host: '127.0.0.1',
+                    port: 6379,
+                    password: 'secret'
+                }
+            };
+
+            const redis = new Redis(options);
+
+            await redis.start();
+            expect(redis.readClient).to.exist();
+        });
+
+        it('sends select command when database is provided', async () => {
+
+            const options = {
+                host: '127.0.0.1',
+                port: 6379,
+                readReplica: {
+                    host: '127.0.0.1',
+                    port: 6379,
+                    database: 1
+                }
+            };
+
+            const redis = new Redis(options);
+
+            await redis.start();
+            expect(redis.readClient).to.exist();
+        });
+
+        it('connects to a unix domain socket when one is provided.', async () => {
+
+            const options = {
+                socket: '/tmp/redis.sock',
+                readReplica: {
+                    socket: '/tmp/redis.sock'
+                }
+            };
+
+            const redis = new Redis(options);
+
+            await redis.start();
+            expect(redis.readClient).to.exist();
+        });
+
+        it('connects via a Redis URL when one is provided.', async () => {
+
+            const options = {
+                url: 'redis://127.0.0.1:6379',
+                readReplica: {
+                    url: 'redis://127.0.0.1:6379'
+                }
+            };
+
+            const redis = new Redis(options);
+
+            await redis.start();
+            expect(redis.readClient).to.exist();
+        });
+
+        it('returns error on get when stopped', async () => {
+
+            const options = {
+                host: '127.0.0.1',
+                port: 6379,
+                readReplica: {
+                    host: '127.0.0.1',
+                    port: 6379
+                }
+            };
+
+            const client = new Catbox.Client(new Redis(options));
+            client.stop();
+
+            const key = { id: 'x', segment: 'test' };
+            await expect((() => {
+
+                return client.connection.get(key);
+            })()).to.reject(Error, 'Connection not started');
+        });
+    });
+
     describe('start()', () => {
 
         it('sets client to when the connection succeeds', async () => {
@@ -610,6 +842,33 @@ describe('Redis', () => {
     });
 
     describe('get()', () => {
+
+        it('uses the readClient when available', async () => {
+
+            const options = {
+                host: '127.0.0.1',
+                port: 6379,
+                partition: 'wwwtest',
+                readReplica: {
+                    host: '127.0.0.1',
+                    port: 6379
+                }
+            };
+            const key = {
+                id: 'test',
+                segment: 'test'
+            };
+
+            const redis = new Redis(options);
+
+            await redis.start();
+            Sinon.spy(redis.readClient, 'get');
+            await redis.set(key, 'myvalue', 200);
+            const result = await redis.get(key);
+            expect(result.item).to.equal('myvalue');
+            expect(redis.readClient.get.called).to.equal(true);
+            redis.readClient.get.restore();
+        });
 
         it('returns a promise that rejects when the connection is closed', async () => {
 
