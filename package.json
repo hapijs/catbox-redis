@@ -23,10 +23,12 @@
   "devDependencies": {
     "catbox": "10.x.x",
     "code": "5.x.x",
-    "lab": "15.x.x"
+    "lab": "15.x.x",
+    "sinon": "^4.1.2"
   },
   "scripts": {
     "test": "lab -r console -t 100 -a code -L",
+    "test2": "lab -r html -t 100 -a code -L > coverage.html",
     "test-cov-html": "lab -r html -o coverage.html -a code -L"
   },
   "license": "BSD-3-Clause"

@@ -16,6 +16,13 @@ Lead Maintainer: [Loic Mahieu](https://github.com/LoicMahieu)
 - `partition` - this will store items under keys that start with this value. (Default: '')
 - `sentinels` - an array of redis sentinel addresses to connect to.
 - `sentinelName` - the name of the sentinel master. (Only needed when `sentinels` is specified)
+- `readReplica` - the connection options to use a read replica:
+  - `url` - the Redis server URL (if `url` is provided, `host`, `port`, and `socket` are ignored)
+  - `host` - the Redis server hostname. Defaults to `'127.0.0.1'`.
+  - `port` - the Redis server port or unix domain socket path.
+  - `socket` - the unix socket string to connect to (if `socket` is provided, `host` and `port` are ignored)
+  - `password` - the Redis authentication password when required.
+  - `database` - the Redis database.
 
 ## Tests
 
