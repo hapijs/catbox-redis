@@ -61,7 +61,7 @@ describe('Redis', () => {
         const client = new Catbox.Client(Redis);
         await client.start();
         expect(client.isReady()).to.equal(true);
-        client.stop();
+        await client.stop();
         expect(client.isReady()).to.equal(false);
     });
 
@@ -97,6 +97,27 @@ describe('Redis', () => {
                 resolve();
             });
         });
+    });
+
+    it('does not stop provided client in options', async () => {
+
+        const redisClient = RedisClient.createClient();
+
+        await new Promise((resolve, reject) => {
+
+            redisClient.once('error', reject);
+            redisClient.once('ready', resolve);
+        });
+
+        const client = new Catbox.Client(Redis, {
+            client: redisClient
+        });
+        await client.start();
+        expect(client.isReady()).to.equal(true);
+        await client.stop();
+        expect(client.isReady()).to.equal(false);
+        expect(redisClient.status).to.equal('ready');
+        await redisClient.quit();
     });
 
     it('gets an item after setting it', async () => {
@@ -246,7 +267,7 @@ describe('Redis', () => {
     it('returns error on get when stopped', async () => {
 
         const client = new Catbox.Client(Redis);
-        client.stop();
+        await client.stop();
 
         const key = { id: 'x', segment: 'test' };
         await expect((() => {
@@ -258,7 +279,7 @@ describe('Redis', () => {
     it('returns error on set when stopped', async () => {
 
         const client = new Catbox.Client(Redis);
-        client.stop();
+        await client.stop();
 
         const key = { id: 'x', segment: 'test' };
         await expect((() => {
@@ -270,7 +291,7 @@ describe('Redis', () => {
     it('returns error on drop when stopped', async () => {
 
         const client = new Catbox.Client(Redis);
-        client.stop();
+        await client.stop();
 
         const key = { id: 'x', segment: 'test' };
         await expect((async () => {
@@ -308,7 +329,7 @@ describe('Redis', () => {
     it('returns error when cache item dropped while stopped', async () => {
 
         const client = new Catbox.Client(Redis);
-        client.stop();
+        await client.stop();
 
         await expect((() => {
 
@@ -542,7 +563,7 @@ describe('Redis', () => {
             await redis.start();
             expect(redis.client).to.exist();
             expect(redis.isReady()).to.equal(true);
-            redis.stop();
+            await redis.stop();
         });
 
         it('returns false when stopped', async () => {
@@ -557,7 +578,7 @@ describe('Redis', () => {
             await redis.start();
             expect(redis.client).to.exist();
             expect(redis.isReady()).to.equal(true);
-            redis.stop();
+            await redis.stop();
             expect(redis.isReady()).to.equal(false);
         });
     });
@@ -889,7 +910,7 @@ describe('Redis', () => {
 
             await redis.start();
             expect(redis.client).to.exist();
-            redis.stop();
+            await redis.stop();
             expect(redis.client).to.not.exist();
         });
     });
