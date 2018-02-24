@@ -7,7 +7,7 @@ node_js:
   - "9"
 
 services:
-  - redis
+  - redis-server
 
 before_script:
   - redis-server --port 6378 --requirepass secret &
