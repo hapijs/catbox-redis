@@ -454,6 +454,20 @@ describe('Redis', () => {
             expect(redis.client).to.exist();
         });
 
+        it('sends select command when database is provided under "db" key', async () => {
+
+            const options = {
+                host: '127.0.0.1',
+                port: 6379,
+                db: 1
+            };
+
+            const redis = new Redis(options);
+
+            await redis.start();
+            expect(redis.client).to.exist();
+        });
+
         it('connects to a unix domain socket when one is provided.', async () => {
 
             const options = {
