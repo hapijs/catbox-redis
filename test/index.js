@@ -65,7 +65,7 @@ describe('Redis', () => {
         expect(client.isReady()).to.equal(false);
     });
 
-    it('allow passing client in option', () => {
+    it('allow passing a factory client function in option', () => {
 
         return new Promise((resolve, reject) =>  {
 
@@ -86,7 +86,7 @@ describe('Redis', () => {
             redisClient.once('ready', async () => {
 
                 const client = new Catbox.Client(Redis, {
-                    client: redisClient
+                    client: () => redisClient
                 });
                 await client.start();
                 expect(client.isReady()).to.equal(true);
@@ -110,7 +110,7 @@ describe('Redis', () => {
         });
 
         const client = new Catbox.Client(Redis, {
-            client: redisClient
+            client: () => redisClient
         });
         await client.start();
         expect(client.isReady()).to.equal(true);
