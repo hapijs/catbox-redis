@@ -16,6 +16,8 @@ Lead Maintainer: [Loic Mahieu](https://github.com/LoicMahieu)
 - `partition` - this will store items under keys that start with this value. (Default: '')
 - `sentinels` - an array of redis sentinel addresses to connect to.
 - `sentinelName` - the name of the sentinel master. (Only needed when `sentinels` is specified)
+- `clusterNodes` - an array of Redis cluster object nodes to connect to; `[{ host: 127.0.0.1, port: 6379 }, ...]`
+- `clusterOptions` - `ioredis` cluster options, defaults to `{}`.
 
 ## Tests
 
@@ -23,6 +25,7 @@ The test suite expects:
 - a redis server to be running on port 6379
 - a redis server listenning to port 6378 and requiring a password: 'secret'
 - a redis server listenning on socket `/tmp/redis.sock`
+- a redis server in cluster mode listening on port 6379
 
 See [.travis.yml](./.travis.yml)
 

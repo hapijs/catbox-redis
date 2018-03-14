@@ -506,6 +506,27 @@ describe('Redis', () => {
                 RedisClient.createClient = oldCreateClient;
             });
 
+            it('connects to an operational cluster', async () => {
+
+                const options = {
+                    clusterNodes: [
+                        {
+                            host: '127.0.0.1',
+                            port: 6379
+                        }
+                    ],
+                    clusterOpts: {
+                        scaleReads: 'all'
+                    }
+                };
+
+                const redis = new Redis(options);
+
+                await redis.start();
+                const client = redis.client;
+                expect(client).to.exist();
+            });
+
             it('connects to a sentinel cluster.', async () => {
 
                 const options = {
