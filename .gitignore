@@ -15,4 +15,5 @@ config.json
 */*/._*
 coverage.*
 lib-cov
+package-lock.json
 
