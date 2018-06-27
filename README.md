@@ -16,6 +16,7 @@ Lead Maintainer: [Loic Mahieu](https://github.com/LoicMahieu)
 - `partition` - this will store items under keys that start with this value. (Default: '')
 - `sentinels` - an array of redis sentinel addresses to connect to.
 - `sentinelName` - the name of the sentinel master. (Only needed when `sentinels` is specified)
+- `client` - a custom Redis client instance. Using a custom `client` puts you in charge of lifecycle handling (client start/stop). A custom `client` must be compatible with the `ioredis` API
 
 ## Tests
 
