@@ -5,6 +5,7 @@ Redis adapter for catbox
 
 Lead Maintainer: [Loic Mahieu](https://github.com/LoicMahieu)
 
+
 ## Options
 
 - `url` - the Redis server URL (if `url` is provided, `host`, `port`, and `socket` are ignored)
@@ -17,12 +18,20 @@ Lead Maintainer: [Loic Mahieu](https://github.com/LoicMahieu)
 - `sentinels` - an array of redis sentinel addresses to connect to.
 - `sentinelName` - the name of the sentinel master. (Only needed when `sentinels` is specified)
 
-### Use a Custom Redis Client
-`catbox-redis` allows you to specify a custom Redis client. Using a custom `client` puts you in charge of lifecycle handling (client start/stop). A custom `client` must be compatible with the `ioredis` API. A custom `client` must also expose the `status` property which should match `ready` when connected. A `catbox-redis` client is ready when `client.status === 'ready'` resolves to `true`.
 
-All the options from above are ignored when you provide a custom `client`.
+### Use a Custom Redis Client
+`catbox-redis` allows you to specify a custom Redis client. Using a custom `client` puts you in charge of lifecycle handling (client start/stop).
+
+**Requirements**
+
+- `client` must be compatible with the `ioredis` API
+- `client` must also expose the `status` property that needs to match `ready` when connected
+- `client` is ready when `client.status === 'ready'` resolves to `true`
+
+All other options of `catbox-redis` are ignored when providing a custom `client`.
 
 - `client` - a custom Redis client instance
+
 
 ## Tests
 
@@ -34,6 +43,6 @@ The test suite expects:
 See [.travis.yml](./.travis.yml)
 
 ```sh
-redis-server&
+redis-server &
 npm test
 ```
