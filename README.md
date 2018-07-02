@@ -18,7 +18,7 @@ Lead Maintainer: [Loic Mahieu](https://github.com/LoicMahieu)
 - `sentinelName` - the name of the sentinel master. (Only needed when `sentinels` is specified)
 
 ### Use a Custom Redis Client
-`catbox-redis` allows you to specify a custom Redis client. Using a custom `client` puts you in charge of lifecycle handling (client start/stop). A custom `client` must be compatible with the `ioredis` API.
+`catbox-redis` allows you to specify a custom Redis client. Using a custom `client` puts you in charge of lifecycle handling (client start/stop). A custom `client` must be compatible with the `ioredis` API. A custom `client` must also expose the `status` property which should match `ready` when connected. A `catbox-redis` client is ready when `client.status === 'ready'` resolves to `true`.
 
 All the options from above are ignored when you provide a custom `client`.
 
