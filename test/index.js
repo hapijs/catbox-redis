@@ -385,6 +385,21 @@ describe('Redis', () => {
             expect(redis.client).to.not.exist();
         });
 
+        it('sets client without waiting for connection if lazy connection set', async () => {
+
+            const options = {
+                host: '127.0.0.1',
+                port: 6380,
+                lazyConnect: true
+            };
+
+            const redis = new Redis(options);
+
+            await redis.start();
+
+            expect(redis.client).to.exist();
+        });
+
         it('sends auth command when password is provided', async () => {
 
             const options = {
