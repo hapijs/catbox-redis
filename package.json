@@ -17,7 +17,7 @@
     "node": ">=8.0.0"
   },
   "dependencies": {
-    "ioredis": "^4.0.0"
+    "ioredis": "3 - 4"
   },
   "devDependencies": {
     "catbox": "10.x.x",
