@@ -8,6 +8,7 @@ const Catbox = require('catbox');
 const Redis = require('..');
 const RedisClient = require('ioredis');
 const EventEmitter = require('events').EventEmitter;
+const RedisMockServer = require('./utils/redis-mock-server');
 
 
 // Declare internals
@@ -476,15 +477,27 @@ describe('Redis', () => {
 
             it('connects to a sentinel cluster.', async () => {
 
+                const sentinel = new RedisMockServer(27379, (argv) => {
+
+                    if (argv[0] === 'sentinel' && argv[1] === 'get-master-addr-by-name') {
+                        return ['127.0.0.1', '6379'];
+                    }
+                });
+
+                sentinel.once('connect', () => {
+
+                    sentinel.disconnect();
+                });
+
                 const options = {
                     sentinels: [
                         {
                             host: '127.0.0.1',
-                            port: 26379
+                            port: 27379
                         },
                         {
                             host: '127.0.0.2',
-                            port: 26379
+                            port: 27379
                         }
                     ],
                     sentinelName: 'mymaster'
@@ -495,8 +508,8 @@ describe('Redis', () => {
                 await redis.start();
                 const client = redis.client;
                 expect(client).to.exist();
-                expect(client.callArgs.sentinels).to.equal(options.sentinels);
-                expect(client.callArgs.name).to.equal(options.sentinelName);
+                expect(client.connector.options.sentinels).to.equal(options.sentinels);
+                expect(client.connector.options.name).to.equal(options.sentinelName);
             });
         });
 

@@ -23,7 +23,8 @@
   "devDependencies": {
     "catbox": "10.x.x",
     "code": "5.x.x",
-    "lab": "15.x.x"
+    "lab": "15.x.x",
+    "redis-parser": "3.x.x"
   },
   "scripts": {
     "test": "lab -r console -t 100 -a code -L",
