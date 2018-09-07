@@ -7,13 +7,6 @@ const Lab = require('lab');
 const Catbox = require('catbox');
 const Redis = require('..');
 const RedisClient = require('ioredis');
-const EventEmitter = require('events').EventEmitter;
-
-
-// Declare internals
-
-const internals = {};
-
 
 // Test shortcuts
 
@@ -21,8 +14,6 @@ const lab = exports.lab = Lab.script();
 const expect = Code.expect;
 const describe = lab.describe;
 const it = lab.test;
-const before = lab.before;
-const after = lab.after;
 
 
 // Utils
@@ -475,60 +466,6 @@ describe('Redis', () => {
 
             await redis.start();
             expect(redis.client).to.exist();
-        });
-
-        describe('', () => {
-
-            const oldCreateClient = RedisClient.createClient;
-            before(() => {
-
-                return new Promise((resolve, reject) => {
-
-                    RedisClient.createClient = function (opts) {
-
-                        const out = new EventEmitter();
-                        process.nextTick(() => {
-
-
-                            out.emit('ready');
-                            out.removeAllListeners();
-                        });
-                        out.callArgs = opts;
-                        return out;
-                    };
-                    resolve();
-                });
-            });
-
-            after(() => {
-
-                RedisClient.createClient = oldCreateClient;
-            });
-
-            it('connects to a sentinel cluster.', async () => {
-
-                const options = {
-                    sentinels: [
-                        {
-                            host: '127.0.0.1',
-                            port: 26379
-                        },
-                        {
-                            host: '127.0.0.2',
-                            port: 26379
-                        }
-                    ],
-                    sentinelName: 'mymaster'
-                };
-
-                const redis = new Redis(options);
-
-                await redis.start();
-                const client = redis.client;
-                expect(client).to.exist();
-                expect(client.callArgs.sentinels).to.equal(options.sentinels);
-                expect(client.callArgs.name).to.equal(options.sentinelName);
-            });
         });
 
         it('does not stops the client on error post connection', async () => {

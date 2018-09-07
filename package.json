@@ -4,7 +4,8 @@
   "version": "4.2.1",
   "author": "Eran Hammer <eran@hammer.io> (http://hueniverse.com)",
   "contributors": [
-    "Wyatt Preul <wpreul@gmail.com> (http://jsgeek.com)"
+    "Wyatt Preul <wpreul@gmail.com> (http://jsgeek.com)",
+    "Simon Schick <demwizzy@gmail.com>"
   ],
   "repository": "git://github.com/hapijs/catbox-redis",
   "main": "lib/index.js",
@@ -17,8 +18,7 @@
     "node": ">=8.0.0"
   },
   "dependencies": {
-    "hoek": "5.x.x",
-    "ioredis": "3.x.x"
+    "ioredis": "^4.0.0"
   },
   "devDependencies": {
     "catbox": "10.x.x",
