@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "hoek": "5.x.x",
-    "ioredis": "3.x.x"
+    "ioredis": "4.x.x"
   },
   "devDependencies": {
     "catbox": "10.x.x",
