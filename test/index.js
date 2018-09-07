@@ -787,6 +787,25 @@ describe('Redis', () => {
             const result = await redis.get(key);
             expect(result.item).to.equal(0);
         });
+
+        it('can store and retrieve falsy values such as boolean false', async () => {
+
+            const options = {
+                host: '127.0.0.1',
+                port: 6379,
+                partition: 'wwwtest'
+            };
+            const key = {
+                id: 'test',
+                segment: 'test'
+            };
+
+            const redis = new Redis(options);
+            await redis.start();
+            await redis.set(key, false, 200);
+            const result = await redis.get(key);
+            expect(result.item).to.equal(false);
+        });
     });
 
     describe('set()', () => {
