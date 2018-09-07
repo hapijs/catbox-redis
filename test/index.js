@@ -7,13 +7,6 @@ const Lab = require('lab');
 const Catbox = require('catbox');
 const Redis = require('..');
 const RedisClient = require('ioredis');
-const EventEmitter = require('events').EventEmitter;
-
-
-// Declare internals
-
-const internals = {};
-
 
 // Test shortcuts
 
@@ -21,8 +14,6 @@ const lab = exports.lab = Lab.script();
 const expect = Code.expect;
 const describe = lab.describe;
 const it = lab.test;
-const before = lab.before;
-const after = lab.after;
 
 
 // Utils
