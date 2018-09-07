@@ -64,52 +64,34 @@ describe('Redis', () => {
         expect(client.isReady()).to.equal(false);
     });
 
-    it('allow passing client in option', () => {
+    it('allow passing a factory client function in option', async () => {
 
-        return new Promise((resolve, reject) =>  {
+        const redisClient = RedisClient.createClient();
 
-            const redisClient = RedisClient.createClient();
+        let getCalled = false;
+        const _get = redisClient.get;
+        redisClient.get = function (key, callback) {
 
-            let getCalled = false;
-            const _get = redisClient.get;
-            redisClient.get = function (key, callback) {
+            getCalled = true;
+            return _get.apply(redisClient, arguments);
+        };
 
-                getCalled = true;
-                return _get.apply(redisClient, arguments);
-            };
-
-            redisClient.on('error', (err) => {
-
-                reject(err);
-            });
-            redisClient.once('ready', async () => {
-
-                const client = new Catbox.Client(Redis, {
-                    client: redisClient
-                });
-                await client.start();
-                expect(client.isReady()).to.equal(true);
-                const key = { id: 'x', segment: 'test' };
-                await client.get(key);
-                expect(getCalled).to.equal(true);
-
-                resolve();
-            });
+        const client = new Catbox.Client(Redis, {
+            client: () => redisClient
         });
+        await client.start();
+        expect(client.isReady()).to.equal(true);
+        const key = { id: 'x', segment: 'test' };
+        await client.get(key);
+        expect(getCalled).to.equal(true);
     });
 
     it('does not stop provided client in options', async () => {
 
         const redisClient = RedisClient.createClient();
 
-        await new Promise((resolve, reject) => {
-
-            redisClient.once('error', reject);
-            redisClient.once('ready', resolve);
-        });
-
         const client = new Catbox.Client(Redis, {
-            client: redisClient
+            client: () => redisClient
         });
         await client.start();
         expect(client.isReady()).to.equal(true);
