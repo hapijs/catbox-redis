@@ -44,6 +44,6 @@ The test suite expects:
 See [.travis.yml](./.travis.yml)
 
 ```sh
-redis-server&
+redis-server &
 npm test
 ```
