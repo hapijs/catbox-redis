@@ -7,7 +7,6 @@ const Lab = require('lab');
 const Catbox = require('catbox');
 const Redis = require('..');
 const RedisClient = require('ioredis');
-const EventEmitter = require('events').EventEmitter;
 const RedisMockServer = require('./utils/redis-mock-server');
 
 
@@ -22,8 +21,6 @@ const lab = exports.lab = Lab.script();
 const expect = Code.expect;
 const describe = lab.describe;
 const it = lab.test;
-const before = lab.before;
-const after = lab.after;
 
 
 // Utils
@@ -449,31 +446,6 @@ describe('Redis', () => {
         });
 
         describe('', () => {
-
-            const oldCreateClient = RedisClient.createClient;
-            before(() => {
-
-                return new Promise((resolve, reject) => {
-
-                    RedisClient.createClient = function (opts) {
-
-                        const out = new EventEmitter();
-                        process.nextTick(() => {
-
-                            out.emit('ready');
-                            out.removeAllListeners();
-                        });
-                        out.callArgs = opts;
-                        return out;
-                    };
-                    resolve();
-                });
-            });
-
-            after(() => {
-
-                RedisClient.createClient = oldCreateClient;
-            });
 
             it('connects to a sentinel cluster.', async () => {
 
