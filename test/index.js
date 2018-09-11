@@ -70,10 +70,10 @@ describe('Redis', () => {
 
             let getCalled = false;
             const _get = redisClient.get;
-            redisClient.get = function (key, callback) {
+            redisClient.get = function (...args) {
 
                 getCalled = true;
-                return _get.apply(redisClient, arguments);
+                return _get.apply(redisClient, args);
             };
 
             redisClient.on('error', (err) => {
@@ -286,6 +286,7 @@ describe('Redis', () => {
             const client = new Catbox.Client(Redis);
             new Catbox.Policy(config, client, '');
         };
+
         expect(fn).to.throw(Error);
     });
 
@@ -299,6 +300,7 @@ describe('Redis', () => {
             const client = new Catbox.Client(Redis);
             new Catbox.Policy(config, client, 'a\0b');
         };
+
         expect(fn).to.throw(Error);
     });
 
@@ -767,7 +769,7 @@ describe('Redis', () => {
             }
             catch (err) {
                 expect(err.message).to.equal('Connection not started');
-            };
+            }
         });
 
         it('returns a promise that rejects when there is an error returned from setting an item', async () => {
