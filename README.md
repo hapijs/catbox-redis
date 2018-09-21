@@ -1,7 +1,10 @@
-catbox-redis [![Build Status](https://travis-ci.org/hapijs/catbox-redis.svg?branch=master)](https://travis-ci.org/hapijs/catbox-redis)
+catbox-redis
 ============
 
-Redis adapter for catbox
+Redis adapter for [catbox](https://github.com/hapijs/catbox)
+
+[![Build Status](https://travis-ci.org/hapijs/catbox-redis.svg?branch=master)](https://travis-ci.org/hapijs/catbox-redis)
+[![catbox-redis](https://img.shields.io/npm/v/catbox-redis.svg)](https://www.npmjs.com/package/catbox-redis)
 
 Lead Maintainer: [Marcus Poehls](https://github.com/marcuspoehls)
 
