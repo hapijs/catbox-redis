@@ -3,7 +3,7 @@ catbox-redis [![Build Status](https://travis-ci.org/hapijs/catbox-redis.svg?bran
 
 Redis adapter for catbox
 
-Lead Maintainer: [Loic Mahieu](https://github.com/LoicMahieu)
+Lead Maintainer: [Marcus Poehls](https://github.com/marcuspoehls)
 
 
 ## Options

@@ -4,6 +4,8 @@
   "version": "4.2.1",
   "author": "Eran Hammer <eran@hammer.io> (http://hueniverse.com)",
   "contributors": [
+    "Marcus Poehls <marcus@futurestud.io> (https://futurestud.io)",
+    "Loic Mahieu (https://igloo.be)",
     "Wyatt Preul <wpreul@gmail.com> (http://jsgeek.com)"
   ],
   "repository": "git://github.com/hapijs/catbox-redis",
