@@ -3,7 +3,7 @@ catbox-redis [![Build Status](https://travis-ci.org/hapijs/catbox-redis.svg?bran
 
 Redis adapter for catbox
 
-Lead Maintainer: [Loic Mahieu](https://github.com/LoicMahieu)
+Lead Maintainer: [Marcus Poehls](https://github.com/marcuspoehls)
 
 
 ## Options
@@ -17,7 +17,6 @@ Lead Maintainer: [Loic Mahieu](https://github.com/LoicMahieu)
 - `partition` - this will store items under keys that start with this value. (Default: '')
 - `sentinels` - an array of redis sentinel addresses to connect to.
 - `sentinelName` - the name of the sentinel master. (Only needed when `sentinels` is specified)
-
 
 
 ### Use a Custom Redis Client

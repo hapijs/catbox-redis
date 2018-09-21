@@ -49,6 +49,7 @@ internals.getResponse = function (callback) {
         else if (cached) {
             return callback(null, 'From cache: ' + cached.item);
         }
+
         internals.client.set(key, cacheValue, ttl, (error) => {
 
             callback(error, cacheValue);

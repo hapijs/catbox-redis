@@ -7,7 +7,7 @@ const Lab = require('lab');
 const Catbox = require('catbox');
 const Redis = require('..');
 const RedisClient = require('ioredis');
-const EventEmitter = require('events').EventEmitter;
+const RedisMockServer = require('./utils/redis-mock-server');
 
 
 // Declare internals
@@ -21,8 +21,6 @@ const lab = exports.lab = Lab.script();
 const expect = Code.expect;
 const describe = lab.describe;
 const it = lab.test;
-const before = lab.before;
-const after = lab.after;
 
 
 // Utils
@@ -72,10 +70,10 @@ describe('Redis', () => {
 
             let getCalled = false;
             const _get = redisClient.get;
-            redisClient.get = function (key, callback) {
+            redisClient.get = function (...args) {
 
                 getCalled = true;
-                return _get.apply(redisClient, arguments);
+                return _get.apply(redisClient, args);
             };
 
             redisClient.on('error', (err) => {
@@ -139,10 +137,7 @@ describe('Redis', () => {
         const value = { a: 1 };
         value.b = value;
 
-        await expect((() => {
-
-            return client.set(key, value, 10);
-        })()).to.reject(Error, 'Converting circular structure to JSON');
+        await expect(client.set(key, value, 10)).to.reject(Error, 'Converting circular structure to JSON');
     });
 
     it('ignored starting a connection twice on same event', () => {
@@ -205,10 +200,7 @@ describe('Redis', () => {
         const client = new Catbox.Client(Redis);
         await client.start();
 
-        await expect((() => {
-
-            return client.set(null, {}, 1000);
-        })()).to.reject(Error);
+        await expect(client.set(null, {}, 1000)).to.reject(Error);
     });
 
     it('returns error on get when using invalid key', async () => {
@@ -216,10 +208,7 @@ describe('Redis', () => {
         const client = new Catbox.Client(Redis);
         await client.start();
 
-        await expect((() => {
-
-            return client.get({});
-        })()).to.reject(Error);
+        await expect(client.get({})).to.reject(Error);
     });
 
     it('returns error on drop when using invalid key', async () => {
@@ -227,10 +216,7 @@ describe('Redis', () => {
         const client = new Catbox.Client(Redis);
         await client.start();
 
-        await expect((() => {
-
-            return client.drop({});
-        })()).to.reject(Error);
+        await expect(client.drop({})).to.reject(Error);
     });
 
     it('returns error on set when using invalid key', async () => {
@@ -238,10 +224,7 @@ describe('Redis', () => {
         const client = new Catbox.Client(Redis);
         await client.start();
 
-        await expect((() => {
-
-            return client.set({}, {}, 1000);
-        })()).to.reject(Error);
+        await expect(client.set({}, {}, 1000)).to.reject(Error);
     });
 
     it('ignores set when using non-positive ttl value', async () => {
@@ -257,10 +240,7 @@ describe('Redis', () => {
         const client = new Catbox.Client(Redis);
         await client.start();
 
-        await expect((() => {
-
-            return client.drop(null);
-        })()).to.reject(Error);
+        await expect(client.drop(null)).to.reject(Error);
     });
 
     it('returns error on get when stopped', async () => {
@@ -269,10 +249,7 @@ describe('Redis', () => {
         await client.stop();
 
         const key = { id: 'x', segment: 'test' };
-        await expect((() => {
-
-            return client.connection.get(key);
-        })()).to.reject(Error, 'Connection not started');
+        await expect(client.connection.get(key)).to.reject(Error, 'Connection not started');
     });
 
     it('returns error on set when stopped', async () => {
@@ -281,10 +258,7 @@ describe('Redis', () => {
         await client.stop();
 
         const key = { id: 'x', segment: 'test' };
-        await expect((() => {
-
-            return client.connection.set(key, 'y', 1);
-        })()).to.reject(Error, 'Connection not started');
+        await expect(client.connection.set(key, 'y', 1)).to.reject(Error, 'Connection not started');
     });
 
     it('returns error on drop when stopped', async () => {
@@ -293,10 +267,13 @@ describe('Redis', () => {
         await client.stop();
 
         const key = { id: 'x', segment: 'test' };
-        await expect((async () => {
 
+        try {
             await client.connection.drop(key);
-        })()).to.reject(Error, 'Connection not started');
+        }
+        catch (err) {
+            expect(err.message).to.equal('Connection not started');
+        }
     });
 
     it('returns error on missing segment name', () => {
@@ -309,6 +286,7 @@ describe('Redis', () => {
             const client = new Catbox.Client(Redis);
             new Catbox.Policy(config, client, '');
         };
+
         expect(fn).to.throw(Error);
     });
 
@@ -322,6 +300,7 @@ describe('Redis', () => {
             const client = new Catbox.Client(Redis);
             new Catbox.Policy(config, client, 'a\0b');
         };
+
         expect(fn).to.throw(Error);
     });
 
@@ -330,10 +309,7 @@ describe('Redis', () => {
         const client = new Catbox.Client(Redis);
         await client.stop();
 
-        await expect((() => {
-
-            return client.drop('a');
-        })()).to.reject(Error);
+        await expect(client.drop('a')).to.reject(Error);
     });
 
     describe('start()', () => {
@@ -376,10 +352,7 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            await expect((() => {
-
-                return redis.start();
-            })()).to.reject(Error);
+            await expect(redis.start()).to.reject(Error);
 
             expect(redis.client).to.not.exist();
         });
@@ -417,10 +390,7 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            await expect((() => {
-
-                return redis.start();
-            })()).to.reject(Error);
+            await expect(redis.start()).to.reject(Error);
 
             expect(redis.client).to.not.exist();
         });
@@ -479,43 +449,29 @@ describe('Redis', () => {
 
         describe('', () => {
 
-            const oldCreateClient = RedisClient.createClient;
-            before(() => {
-
-                return new Promise((resolve, reject) => {
-
-                    RedisClient.createClient = function (opts) {
-
-                        const out = new EventEmitter();
-                        process.nextTick(() => {
-
-
-                            out.emit('ready');
-                            out.removeAllListeners();
-                        });
-                        out.callArgs = opts;
-                        return out;
-                    };
-                    resolve();
-                });
-            });
-
-            after(() => {
-
-                RedisClient.createClient = oldCreateClient;
-            });
-
             it('connects to a sentinel cluster.', async () => {
+
+                const sentinel = new RedisMockServer(27379, (argv) => {
+
+                    if (argv[0] === 'sentinel' && argv[1] === 'get-master-addr-by-name') {
+                        return ['127.0.0.1', '6379'];
+                    }
+                });
+
+                sentinel.once('connect', () => {
+
+                    sentinel.disconnect();
+                });
 
                 const options = {
                     sentinels: [
                         {
                             host: '127.0.0.1',
-                            port: 26379
+                            port: 27379
                         },
                         {
                             host: '127.0.0.2',
-                            port: 26379
+                            port: 27379
                         }
                     ],
                     sentinelName: 'mymaster'
@@ -526,8 +482,8 @@ describe('Redis', () => {
                 await redis.start();
                 const client = redis.client;
                 expect(client).to.exist();
-                expect(client.callArgs.sentinels).to.equal(options.sentinels);
-                expect(client.callArgs.name).to.equal(options.sentinelName);
+                expect(client.connector.options.sentinels).to.equal(options.sentinels);
+                expect(client.connector.options.name).to.equal(options.sentinelName);
             });
         });
 
@@ -640,10 +596,12 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            await expect((async () => {
-
+            try {
                 await redis.get('test');
-            })()).to.reject(Error, 'Connection not started');
+            }
+            catch (err) {
+                expect(err.message).to.equal('Connection not started');
+            }
         });
 
         it('returns a promise that rejects when there is an error returned from getting an item', async () => {
@@ -661,10 +619,7 @@ describe('Redis', () => {
                 }
             };
 
-            await expect((() => {
-
-                return redis.get('test');
-            })()).to.reject(Error);
+            await expect(redis.get('test')).to.reject(Error);
         });
 
         it('returns a promise that rejects when there is an error parsing the result', async () => {
@@ -683,10 +638,7 @@ describe('Redis', () => {
                 }
             };
 
-            await expect((() => {
-
-                return redis.get('test');
-            })()).to.reject(Error, 'Bad envelope content');
+            await expect(redis.get('test')).to.reject(Error, 'Bad envelope content');
         });
 
         it('returns a promise that rejects when there is an error with the envelope structure (stored)', async () => {
@@ -704,10 +656,7 @@ describe('Redis', () => {
                 }
             };
 
-            await expect((() => {
-
-                return redis.get('test');
-            })()).to.reject(Error, 'Incorrect envelope structure');
+            await expect(redis.get('test')).to.reject(Error, 'Incorrect envelope structure');
         });
 
         it('returns a promise that rejects when there is an error with the envelope structure (item)', async () => {
@@ -725,10 +674,7 @@ describe('Redis', () => {
                 }
             };
 
-            await expect((() => {
-
-                return redis.get('test');
-            })()).to.reject(Error, 'Incorrect envelope structure');
+            await expect(redis.get('test')).to.reject(Error, 'Incorrect envelope structure');
         });
 
         it('is able to retrieve an object thats stored when connection is started', async () => {
@@ -818,10 +764,12 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            await expect((async () => {
-
+            try {
                 await redis.set('test1', 'test1', 3600);
-            })()).to.reject(Error, 'Connection not started');
+            }
+            catch (err) {
+                expect(err.message).to.equal('Connection not started');
+            }
         });
 
         it('returns a promise that rejects when there is an error returned from setting an item', async () => {
@@ -839,10 +787,7 @@ describe('Redis', () => {
                 }
             };
 
-            await expect((() => {
-
-                return redis.set('test', 'test', 3600);
-            })()).to.reject(Error);
+            await expect(redis.set('test', 'test', 3600)).to.reject(Error);
         });
     });
 
@@ -857,10 +802,12 @@ describe('Redis', () => {
 
             const redis = new Redis(options);
 
-            await expect((async () => {
-
+            try {
                 await redis.drop('test2');
-            })()).to.reject(Error, 'Connection not started');
+            }
+            catch (err) {
+                expect(err.message).to.equal('Connection not started');
+            }
         });
 
         it('deletes the item from redis', async () => {
