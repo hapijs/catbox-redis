@@ -42,10 +42,12 @@ The test suite expects:
 - a redis server to be running on port 6379
 - a redis server listenning to port 6378 and requiring a password: 'secret'
 - a redis server listenning on socket `/tmp/redis.sock`
+- a redis cluster contains nodes running on ports 7000 to 7005
 
 See [.travis.yml](./.travis.yml)
 
 ```sh
+docker-compose up -d
 redis-server &
 npm test
 ```
