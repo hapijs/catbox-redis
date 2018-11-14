@@ -37,6 +37,8 @@ All other options of `catbox-redis` are ignored when providing a custom `client`
 
 - `client` - a custom Redis client instance
 
+Your custom client instance can also use a Redis cluster.
+
 
 ## Tests
 
