@@ -487,6 +487,47 @@ describe('Redis', () => {
             });
         });
 
+        describe('cluster:', () => {
+
+            it('connects to a Redis cluster', async () => {
+
+                const cluster = new RedisMockServer(16379, (argv) => {
+
+                    if (argv[0] === 'cluster' && argv[1] === 'slots') {
+                        return [
+                            [0, 1, ['127.0.0.1', 16379]],
+                            [2, 16383, ['127.0.0.2', 16379]]
+                        ];
+                    }
+                });
+
+                cluster.once('ready', () => {
+
+                    cluster.disconnect();
+                });
+
+                const options = {
+                    clusterNodes: [
+                        {
+                            host: '127.0.0.1',
+                            port: 16379
+                        },
+                        {
+                            host: '127.0.0.2',
+                            port: 16379
+                        }
+                    ]
+                };
+
+                const redis = new Redis(options);
+
+                await redis.start();
+                const client = redis.client;
+                expect(client).to.exist();
+                expect(client.slots).to.exist();
+            });
+        });
+
         it('does not stops the client on error post connection', async () => {
 
             const options = {
