@@ -36,6 +36,52 @@ All other options of `catbox-redis` are ignored when providing a custom `client`
 - `client` - a custom Redis client instance
 
 
+
+
+## Usage
+Sample catbox cache initialization :
+
+```JS
+const Catbox = require('catbox');
+
+const cache = new Catbox.Client(require('catbox-redis'), {
+    // your catbox-redis options
+})
+```
+
+Or configure your hapi server to use `catbox-redis` as the caching strategy (code snippet uses hapi `v17`):
+
+```js
+const Hapi = require('hapi')
+
+const server = new Hapi.Server({
+    cache : [{
+        name: 'redis-cache',
+        engine: require('catbox-redis'),
+        partition: 'cache-posts'
+    }]
+});
+```
+
+For hapi `v18` you need a slightly different config:
+
+```js
+const Hapi = require('hapi')
+ 
+const server = new Hapi.Server({
+    cache : [{
+        name: 'redis-cache',
+        provider: {
+          constructor: require('catbox-redis'),
+          options: {
+            partition : 'cache-posts'
+          }
+        }
+    }]
+});
+```
+
+
 ## Tests
 
 The test suite expects:
