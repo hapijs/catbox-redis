@@ -10,8 +10,10 @@ node_js:
 
 services:
   - redis
+  - docker
 
 before_script:
+  - docker-compose up -d
   - redis-server --port 6378 --requirepass secret &
   - redis-server --port 6377 --unixsocket /tmp/redis.sock &
   - sleep 2
