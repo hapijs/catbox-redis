@@ -1,5 +1,3 @@
-sudo: false
-
 language: node_js
 
 node_js:
@@ -8,10 +6,12 @@ node_js:
   - "11"
   - "node"
 
-services:
-  - redis
+sudo: false
 
-before_script:
-  - redis-server --port 6378 --requirepass secret &
-  - redis-server --port 6377 --unixsocket /tmp/redis.sock &
-  - sleep 2
+install:
+  - "npm install"
+
+os:
+  - "linux"
+  - "osx"
+  - "windows"
