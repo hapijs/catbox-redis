@@ -1,0 +1,15 @@
+version: '3.0'
+services:
+  redis_cluster:
+    container_name: redis_cluster
+    image: grokzen/redis-cluster:4.0.11
+    environment:
+      IP: '0.0.0.0'
+      CLUSTER_ONLY: 'true'
+    ports:
+      - 7000:7000
+      - 7001:7001
+      - 7002:7002
+      - 7003:7003
+      - 7004:7004
+      - 7005:7005

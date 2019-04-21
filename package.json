@@ -7,11 +7,13 @@
   "keywords": ["cache", "catbox", "redis"],
   "dependencies": {
     "@hapi/hoek": "6.x.x",
+    "@hapi/joi": "15.x.x",
     "ioredis": "4.x.x"
   },
   "devDependencies": {
     "@hapi/catbox": "10.x.x",
     "@hapi/code": "5.x.x",
+    "@hapi/hapi": "18.x.x",
     "@hapi/lab": "18.x.x",
     "redis-parser": "3.x.x"
   },

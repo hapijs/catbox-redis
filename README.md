@@ -9,73 +9,66 @@ Redis adapter for [catbox](https://github.com/hapijs/catbox)
 
 ## Options
 
-- `url` - the Redis server URL (if `url` is provided, `host`, `port`, and `socket` are ignored)
-- `host` - the Redis server hostname. Defaults to `'127.0.0.1'`
-- `port` - the Redis server port or unix domain socket path. Defaults to `6379`
-- `socket` - the unix socket string to connect to (if `socket` is provided, `host` and `port` are ignored)
-- `password` - the Redis authentication password when required
-- `database` - the Redis database
-- `partition` - this will store items under keys that start with this value. (Default: '')
-- `sentinels` - an array of redis sentinel addresses to connect to
-- `sentinelName` - the name of the sentinel master. (Only needed when `sentinels` is specified)
+The connection can be specified with one (and only one) of:
 
+- `client` - a custom Redis client instance where `client` must:
+  - be manually started and stopped,
+  - be compatible with the **ioredis** module API, and
+  - expose the `status` property that must be set to `'ready'` when connected.
 
-### Use a Custom Redis Client
-`catbox-redis` allows you to specify a custom Redis client. Using a custom `client` puts you in charge of lifecycle handling (client start/stop).
+- `url` - a Redis server URL.
 
-**Requirements**
+- `socket` - a unix socket string.
 
-- `client` must be compatible with the `ioredis` API
-- `client` must also expose the `status` property that needs to match `ready` when connected
-- `client` is ready when `client.status === 'ready'` resolves to `true`
+- `cluster` - an array of `{ host, port }` pairs.
 
-All other options of `catbox-redis` are ignored when providing a custom `client`.
+- `host` - a Redis server hostname. Defaults to `'127.0.0.1'` if no other connection method specified from the above.
+- `port` - a Redis server port or unix domain socket path. Defaults to `6379` if no other connection method specified from the above.
 
-- `client` - a custom Redis client instance
+**catbox** options:
 
+- `partition` - a string used to prefix all item keys with. Defaults to `''`.
 
+Other supported Redis options:
+
+- `password` - the Redis authentication password when required.
+- `db` - a Redis database name or number.
+- `sentinels` - an array of `{ host, port }` sentinel address pairs.
+- `sentinelName` - the name of the sentinel master (when `sentinels` is specified).
 
 
 ## Usage
-Sample catbox cache initialization :
 
-```JS
-const Catbox = require('catbox');
-
-const cache = new Catbox.Client(require('catbox-redis'), {
-    // your catbox-redis options
-})
-```
-
-Or configure your hapi server to use `catbox-redis` as the caching strategy (code snippet uses hapi `v17`):
+Sample catbox cache initialization:
 
 ```js
-const Hapi = require('hapi')
+const Catbox = require('@hapi/catbox');
+const CatboxRedis = require('@hapi/catbox-redis');
 
-const server = new Hapi.Server({
-    cache : [{
-        name: 'redis-cache',
-        engine: require('catbox-redis'),
-        partition: 'cache-posts'
-    }]
+
+const cache = new Catbox.Client(CatboxRedis, {
+    // your catbox-redis options
 });
 ```
 
-For hapi `v18` you need a slightly different config:
+When used in a hapi server (hapi version 18 or newer):
 
 ```js
 const Hapi = require('hapi')
+const CatboxRedis = require('@hapi/catbox-redis');
  
 const server = new Hapi.Server({
-    cache : [{
-        name: 'redis-cache',
-        provider: {
-          constructor: require('catbox-redis'),
-          options: {
-            partition : 'cache-posts'
-          }
+    cache : [
+        {
+            name: 'my_cache',
+            provider: {
+                constructor: CatboxRedis,
+                options: {
+                    partition : 'my_cached_data'
+                }
+            }
         }
-    }]
+    ]
 });
 ```
 
@@ -86,10 +79,12 @@ The test suite expects:
 - a redis server to be running on port 6379
 - a redis server listenning to port 6378 and requiring a password: 'secret'
 - a redis server listenning on socket `/tmp/redis.sock`
+- a redis cluster contains nodes running on ports 7000 to 7005
 
 See [.travis.yml](./.travis.yml)
 
 ```sh
+docker-compose up -d
 redis-server &
 npm test
 ```

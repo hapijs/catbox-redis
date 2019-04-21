@@ -1,61 +1,94 @@
 'use strict';
 
-// Load modules
+const Code = require('@hapi/code');
+const Catbox = require('@hapi/catbox');
+const CatboxRedis = require('..');
+const Hapi = require('@hapi/hapi');
+const Hoek = require('@hapi/hoek');
+const IoRedis = require('ioredis');
+const Lab = require('@hapi/lab');
 
-const Code = require('code');
-const Lab = require('lab');
-const Catbox = require('catbox');
-const Redis = require('..');
-const RedisClient = require('ioredis');
-const RedisMockServer = require('./utils/redis-mock-server');
+const Mock = require('./mock');
 
-
-// Declare internals
 
 const internals = {};
 
 
-// Test shortcuts
-
-const lab = exports.lab = Lab.script();
+const { it, describe } = exports.lab = Lab.script();
 const expect = Code.expect;
-const describe = lab.describe;
-const it = lab.test;
 
 
-// Utils
+describe('hapi', () => {
 
-const timeoutPromise = (timer) => {
+    it('uses redis server for caching', async () => {
 
-    return new Promise((resolve) => {
+        const server = Hapi.server({
+            cache: {
+                provider: {
+                    constructor: CatboxRedis,
+                    options: {
+                        host: '127.0.0.1',
+                        port: 6379,
+                        partition: 'hapi-test-redis'
+                    }
+                }
+            }
+        });
 
-        setTimeout(resolve, timer);
+        const cache = server.cache({ segment: 'test', expiresIn: 1000 });
+        await server.initialize();
+
+        await cache.set('a', 'going in');
+        expect(await cache.get('a')).to.equal('going in');
     });
-};
 
+    it('uses redis cluster for caching', async () => {
 
-describe('Redis', () => {
+        const server = Hapi.server({
+            cache: {
+                provider: {
+                    constructor: CatboxRedis,
+                    options: {
+                        cluster: [
+                            {
+                                host: '127.0.0.1',
+                                port: 7000
+                            },
+                            {
+                                host: '127.0.0.1',
+                                port: 7001
+                            },
+                            {
+                                host: '127.0.0.1',
+                                port: 7002
+                            }
+                        ],
+                        partition: 'hapi-test-redis'
+                    }
+                }
+            }
+        });
 
-    it('throws an error if not created with new', () => {
+        const cache = server.cache({ segment: 'test', expiresIn: 1000 });
+        await server.initialize();
 
-        const fn = () => {
-
-            Redis();
-        };
-
-        expect(fn).to.throw(Error);
+        await cache.set('a', 'going in');
+        expect(await cache.get('a')).to.equal('going in');
     });
+});
+
+describe('Connection', () => {
 
     it('creates a new connection', async () => {
 
-        const client = new Catbox.Client(Redis);
+        const client = new Catbox.Client(CatboxRedis);
         await client.start();
         expect(client.isReady()).to.equal(true);
     });
 
     it('closes the connection', async () => {
 
-        const client = new Catbox.Client(Redis);
+        const client = new Catbox.Client(CatboxRedis);
         await client.start();
         expect(client.isReady()).to.equal(true);
         await client.stop();
@@ -64,9 +97,9 @@ describe('Redis', () => {
 
     it('allow passing client in option', () => {
 
-        return new Promise((resolve, reject) =>  {
+        return new Promise((resolve, reject) => {
 
-            const redisClient = RedisClient.createClient();
+            const redisClient = IoRedis.createClient();
 
             let getCalled = false;
             const _get = redisClient.get;
@@ -76,13 +109,10 @@ describe('Redis', () => {
                 return _get.apply(redisClient, args);
             };
 
-            redisClient.on('error', (err) => {
-
-                reject(err);
-            });
+            redisClient.on('error', reject);
             redisClient.once('ready', async () => {
 
-                const client = new Catbox.Client(Redis, {
+                const client = new Catbox.Client(CatboxRedis, {
                     client: redisClient
                 });
                 await client.start();
@@ -98,7 +128,7 @@ describe('Redis', () => {
 
     it('does not stop provided client in options', async () => {
 
-        const redisClient = RedisClient.createClient();
+        const redisClient = IoRedis.createClient();
 
         await new Promise((resolve, reject) => {
 
@@ -106,9 +136,7 @@ describe('Redis', () => {
             redisClient.once('ready', resolve);
         });
 
-        const client = new Catbox.Client(Redis, {
-            client: redisClient
-        });
+        const client = new Catbox.Client(CatboxRedis, { client: redisClient });
         await client.start();
         expect(client.isReady()).to.equal(true);
         await client.stop();
@@ -119,7 +147,7 @@ describe('Redis', () => {
 
     it('gets an item after setting it', async () => {
 
-        const client = new Catbox.Client(Redis);
+        const client = new Catbox.Client(CatboxRedis);
         await client.start();
 
         const key = { id: 'x', segment: 'test' };
@@ -131,7 +159,7 @@ describe('Redis', () => {
 
     it('fails setting an item circular references', async () => {
 
-        const client = new Catbox.Client(Redis);
+        const client = new Catbox.Client(CatboxRedis);
         await client.start();
         const key = { id: 'x', segment: 'test' };
         const value = { a: 1 };
@@ -144,7 +172,7 @@ describe('Redis', () => {
 
         return new Promise((resolve, reject) => {
 
-            const client = new Catbox.Client(Redis);
+            const client = new Catbox.Client(CatboxRedis);
             let x = 2;
             const start = async () => {
 
@@ -163,7 +191,7 @@ describe('Redis', () => {
 
     it('ignored starting a connection twice chained', async () => {
 
-        const client = new Catbox.Client(Redis);
+        const client = new Catbox.Client(CatboxRedis);
 
         await client.start();
         expect(client.isReady()).to.equal(true);
@@ -174,7 +202,7 @@ describe('Redis', () => {
 
     it('returns not found on get when using null key', async () => {
 
-        const client = new Catbox.Client(Redis);
+        const client = new Catbox.Client(CatboxRedis);
         await client.start();
 
         const result = await client.get(null);
@@ -184,44 +212,44 @@ describe('Redis', () => {
 
     it('returns not found on get when item expired', async () => {
 
-        const client = new Catbox.Client(Redis);
+        const client = new Catbox.Client(CatboxRedis);
         await client.start();
 
         const key = { id: 'x', segment: 'test' };
         await client.set(key, 'x', 1);
 
-        await timeoutPromise(2);
+        await Hoek.wait(2);
         const result = await client.get(key);
         expect(result).to.equal(null);
     });
 
-    it('returns error on set when using null key', async () => {
+    it('errors on set when using null key', async () => {
 
-        const client = new Catbox.Client(Redis);
+        const client = new Catbox.Client(CatboxRedis);
         await client.start();
 
         await expect(client.set(null, {}, 1000)).to.reject(Error);
     });
 
-    it('returns error on get when using invalid key', async () => {
+    it('errors on get when using invalid key', async () => {
 
-        const client = new Catbox.Client(Redis);
+        const client = new Catbox.Client(CatboxRedis);
         await client.start();
 
         await expect(client.get({})).to.reject(Error);
     });
 
-    it('returns error on drop when using invalid key', async () => {
+    it('errors on drop when using invalid key', async () => {
 
-        const client = new Catbox.Client(Redis);
+        const client = new Catbox.Client(CatboxRedis);
         await client.start();
 
         await expect(client.drop({})).to.reject(Error);
     });
 
-    it('returns error on set when using invalid key', async () => {
+    it('errors on set when using invalid key', async () => {
 
-        const client = new Catbox.Client(Redis);
+        const client = new Catbox.Client(CatboxRedis);
         await client.start();
 
         await expect(client.set({}, {}, 1000)).to.reject(Error);
@@ -229,41 +257,41 @@ describe('Redis', () => {
 
     it('ignores set when using non-positive ttl value', async () => {
 
-        const client = new Catbox.Client(Redis);
+        const client = new Catbox.Client(CatboxRedis);
         await client.start();
         const key = { id: 'x', segment: 'test' };
         await client.set(key, 'y', 0);
     });
 
-    it('returns error on drop when using null key', async () => {
+    it('errors on drop when using null key', async () => {
 
-        const client = new Catbox.Client(Redis);
+        const client = new Catbox.Client(CatboxRedis);
         await client.start();
 
         await expect(client.drop(null)).to.reject(Error);
     });
 
-    it('returns error on get when stopped', async () => {
+    it('errors on get when stopped', async () => {
 
-        const client = new Catbox.Client(Redis);
+        const client = new Catbox.Client(CatboxRedis);
         await client.stop();
 
         const key = { id: 'x', segment: 'test' };
         await expect(client.connection.get(key)).to.reject(Error, 'Connection not started');
     });
 
-    it('returns error on set when stopped', async () => {
+    it('errors on set when stopped', async () => {
 
-        const client = new Catbox.Client(Redis);
+        const client = new Catbox.Client(CatboxRedis);
         await client.stop();
 
         const key = { id: 'x', segment: 'test' };
         await expect(client.connection.set(key, 'y', 1)).to.reject(Error, 'Connection not started');
     });
 
-    it('returns error on drop when stopped', async () => {
+    it('errors on drop when stopped', async () => {
 
-        const client = new Catbox.Client(Redis);
+        const client = new Catbox.Client(CatboxRedis);
         await client.stop();
 
         const key = { id: 'x', segment: 'test' };
@@ -276,37 +304,37 @@ describe('Redis', () => {
         }
     });
 
-    it('returns error on missing segment name', () => {
+    it('errors on missing segment name', () => {
 
         const config = {
             expiresIn: 50000
         };
         const fn = () => {
 
-            const client = new Catbox.Client(Redis);
+            const client = new Catbox.Client(CatboxRedis);
             new Catbox.Policy(config, client, '');
         };
 
         expect(fn).to.throw(Error);
     });
 
-    it('returns error on bad segment name', () => {
+    it('errors on bad segment name', () => {
 
         const config = {
             expiresIn: 50000
         };
         const fn = () => {
 
-            const client = new Catbox.Client(Redis);
+            const client = new Catbox.Client(CatboxRedis);
             new Catbox.Policy(config, client, 'a\0b');
         };
 
         expect(fn).to.throw(Error);
     });
 
-    it('returns error when cache item dropped while stopped', async () => {
+    it('errors when cache item dropped while stopped', async () => {
 
-        const client = new Catbox.Client(Redis);
+        const client = new Catbox.Client(CatboxRedis);
         await client.stop();
 
         await expect(client.drop('a')).to.reject(Error);
@@ -321,7 +349,7 @@ describe('Redis', () => {
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
 
             await redis.start();
             expect(redis.client).to.exist();
@@ -334,7 +362,7 @@ describe('Redis', () => {
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
 
             await redis.start();
             const client = redis.client;
@@ -350,7 +378,7 @@ describe('Redis', () => {
                 port: 6380
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
 
             await expect(redis.start()).to.reject(Error);
 
@@ -365,7 +393,7 @@ describe('Redis', () => {
                 password: 'wrongpassword'
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
 
             const warn = console.warn;
             let consoleMessage = '';
@@ -388,7 +416,7 @@ describe('Redis', () => {
                 password: 'foo'
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
 
             await expect(redis.start()).to.reject(Error);
 
@@ -403,7 +431,7 @@ describe('Redis', () => {
                 password: 'secret'
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
 
             await redis.start();
             expect(redis.client).to.exist();
@@ -417,7 +445,7 @@ describe('Redis', () => {
                 database: 1
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
 
             await redis.start();
             expect(redis.client).to.exist();
@@ -429,7 +457,7 @@ describe('Redis', () => {
                 socket: '/tmp/redis.sock'
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
 
             await redis.start();
             expect(redis.client).to.exist();
@@ -441,7 +469,7 @@ describe('Redis', () => {
                 url: 'redis://127.0.0.1:6379'
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
 
             await redis.start();
             expect(redis.client).to.exist();
@@ -451,7 +479,7 @@ describe('Redis', () => {
 
             it('connects to a sentinel cluster.', async () => {
 
-                const sentinel = new RedisMockServer(27379, (argv) => {
+                const sentinel = new Mock(27379, (argv) => {
 
                     if (argv[0] === 'sentinel' && argv[1] === 'get-master-addr-by-name') {
                         return ['127.0.0.1', '6379'];
@@ -477,7 +505,7 @@ describe('Redis', () => {
                     sentinelName: 'mymaster'
                 };
 
-                const redis = new Redis(options);
+                const redis = new CatboxRedis(options);
 
                 await redis.start();
                 const client = redis.client;
@@ -494,7 +522,7 @@ describe('Redis', () => {
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
 
             await redis.start();
             expect(redis.client).to.exist();
@@ -513,7 +541,7 @@ describe('Redis', () => {
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
 
             await redis.start();
             expect(redis.client).to.exist();
@@ -528,7 +556,7 @@ describe('Redis', () => {
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
 
             await redis.start();
             expect(redis.client).to.exist();
@@ -547,7 +575,7 @@ describe('Redis', () => {
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
 
             const result = redis.validateSegmentName('');
 
@@ -562,7 +590,7 @@ describe('Redis', () => {
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
 
             const result = redis.validateSegmentName('\0test');
 
@@ -576,7 +604,7 @@ describe('Redis', () => {
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
 
             const result = redis.validateSegmentName('valid');
 
@@ -594,7 +622,7 @@ describe('Redis', () => {
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
 
             try {
                 await redis.get('test');
@@ -611,7 +639,7 @@ describe('Redis', () => {
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
             redis.client = {
                 get: function (item) {
 
@@ -629,7 +657,7 @@ describe('Redis', () => {
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
             redis.client = {
 
                 get: function (item) {
@@ -648,7 +676,7 @@ describe('Redis', () => {
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
             redis.client = {
                 get: function (item) {
 
@@ -666,7 +694,7 @@ describe('Redis', () => {
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
             redis.client = {
                 get: function (item) {
 
@@ -689,7 +717,7 @@ describe('Redis', () => {
                 segment: 'test'
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
             await redis.start();
             await redis.set(key, 'myvalue', 200);
             const result = await redis.get(key);
@@ -708,7 +736,7 @@ describe('Redis', () => {
                 segment: 'notfound'
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
             await redis.start();
             const result = await redis.get(key);
             expect(result).to.not.exist();
@@ -726,7 +754,7 @@ describe('Redis', () => {
                 segment: 'test'
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
             await redis.start();
             await redis.set(key, 0, 200);
             const result = await redis.get(key);
@@ -745,7 +773,7 @@ describe('Redis', () => {
                 segment: 'test'
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
             await redis.start();
             await redis.set(key, false, 200);
             const result = await redis.get(key);
@@ -762,7 +790,7 @@ describe('Redis', () => {
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
 
             try {
                 await redis.set('test1', 'test1', 3600);
@@ -779,7 +807,7 @@ describe('Redis', () => {
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
             redis.client = {
                 set: function (key, item, callback) {
 
@@ -800,7 +828,7 @@ describe('Redis', () => {
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
 
             try {
                 await redis.drop('test2');
@@ -817,7 +845,7 @@ describe('Redis', () => {
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
             redis.client = {
                 del: function (key) {
 
@@ -837,7 +865,7 @@ describe('Redis', () => {
                 partition: 'foo'
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
 
             const key = {
                 id: 'bar',
@@ -851,7 +879,7 @@ describe('Redis', () => {
 
             const options = {};
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
 
             const key = {
                 id: 'bar',
@@ -871,7 +899,7 @@ describe('Redis', () => {
                 port: 6379
             };
 
-            const redis = new Redis(options);
+            const redis = new CatboxRedis(options);
 
             await redis.start();
             expect(redis.client).to.exist();
