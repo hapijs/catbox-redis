@@ -18,8 +18,6 @@ env:
 
 os:
   - "linux"
-  - "osx"
-  - "windows"
 
 services:
   - redis
