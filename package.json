@@ -1,10 +1,14 @@
 {
   "name": "@hapi/catbox-redis",
   "description": "Redis adapter for catbox",
-  "version": "4.2.4",
+  "version": "5.0.0",
   "repository": "git://github.com/hapijs/catbox-redis",
   "main": "lib/index.js",
-  "keywords": ["cache", "catbox", "redis"],
+  "keywords": [
+    "cache",
+    "catbox",
+    "redis"
+  ],
   "dependencies": {
     "@hapi/hoek": "6.x.x",
     "@hapi/joi": "15.x.x",
