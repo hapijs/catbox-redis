@@ -72,7 +72,7 @@ describe('Redis Cluster', () => {
         await client.start();
 
         const key = { id: 'x', segment: 'test' };
-        await client.set(key, '123', 500);
+        await client.set(key, '123', 5000);
 
         const result = await client.get(key);
         expect(result.item).to.equal('123');
@@ -152,9 +152,10 @@ describe('Redis Cluster', () => {
         await client.start();
 
         const key = { id: 'x', segment: 'test' };
-        await client.set(key, 'x', 1);
+        await client.set(key, 'x', 10);
 
-        await Hoek.wait(2);
+        await Hoek.wait(20);
+
         const result = await client.get(key);
         expect(result).to.equal(null);
     });
