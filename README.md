@@ -25,7 +25,7 @@ The connection can be specified with one (and only one) of:
 Or:
 
 - `host` - a Redis server hostname. Defaults to `'127.0.0.1'` if no other connection method specified from the above.
-- `port` - a Redis server port or unix domain socket path. Defaults to `6379` if no other connection method specified from the above.
+- `port` - a Redis server port or unix domain socket path. Defaults to `6379` if no other connection method specified from the above. Required if using the `host` option.
 
 **catbox** options:
 
@@ -37,6 +37,7 @@ Other supported Redis options:
 - `db` - a Redis database name or number.
 - `sentinels` - an array of `{ host, port }` sentinel address pairs.
 - `sentinelName` - the name of the sentinel master (when `sentinels` is specified).
+- `tls` - an object representing TLS config options for **ioredis**.
 
 
 ## Usage
@@ -49,7 +50,11 @@ const CatboxRedis = require('@hapi/catbox-redis');
 
 
 const cache = new Catbox.Client(CatboxRedis, {
-    // your catbox-redis options
+    partition : 'my_cached_data'
+    host: 'redis-cluster.domain.com',
+    port: 6379,
+    database: 0,
+    tls: {},
 });
 ```
 
@@ -58,7 +63,7 @@ When used in a hapi server (hapi version 18 or newer):
 ```js
 const Hapi = require('hapi')
 const CatboxRedis = require('@hapi/catbox-redis');
- 
+
 const server = new Hapi.Server({
     cache : [
         {
@@ -67,6 +72,10 @@ const server = new Hapi.Server({
                 constructor: CatboxRedis,
                 options: {
                     partition : 'my_cached_data'
+                    host: 'redis-cluster.domain.com',
+                    port: 6379,
+                    database: 0,
+                    tls: {},
                 }
             }
         }
