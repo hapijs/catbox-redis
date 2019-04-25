@@ -25,7 +25,7 @@ The connection can be specified with one (and only one) of:
 Or:
 
 - `host` - a Redis server hostname. Defaults to `'127.0.0.1'` if no other connection method specified from the above.
-- `port` - a Redis server port or unix domain socket path. Defaults to `6379` if no other connection method specified from the above. Required if using the `host` option.
+- `port` - a Redis server port or unix domain socket path. Defaults to `6379` if no other connection method specified from the above.
 
 **catbox** options:
 
