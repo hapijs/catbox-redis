@@ -53,7 +53,7 @@ const cache = new Catbox.Client(CatboxRedis, {
     partition : 'my_cached_data'
     host: 'redis-cluster.domain.com',
     port: 6379,
-    database: 0,
+    db: 0,
     tls: {},
 });
 ```
@@ -74,7 +74,7 @@ const server = new Hapi.Server({
                     partition : 'my_cached_data'
                     host: 'redis-cluster.domain.com',
                     port: 6379,
-                    database: 0,
+                    db: 0,
                     tls: {},
                 }
             }
