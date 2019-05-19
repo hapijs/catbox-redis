@@ -1,7 +1,7 @@
 {
   "name": "@hapi/catbox-redis",
   "description": "Redis adapter for catbox",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "repository": "git://github.com/hapijs/catbox-redis",
   "main": "lib/index.js",
   "keywords": [
