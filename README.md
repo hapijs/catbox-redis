@@ -4,7 +4,7 @@
 
 Redis adapter for [catbox](https://github.com/hapijs/catbox)
 
-[![Build Status](https://travis-ci.org/hapijs/catbox-redis.svg?branch=master)](https://travis-ci.org/hapijs/catbox-redis)
+[![Build Status](https://travis-ci.org/hapijs/catbox-redis.svg?branch=master)](https://travis-ci.org/hapijs/catbox-redis) [![Greenkeeper badge](https://badges.greenkeeper.io/hapijs/catbox-redis.svg)](https://greenkeeper.io/)
 
 
 ## Options
