@@ -11,7 +11,7 @@
   ],
   "dependencies": {
     "@hapi/hoek": "8.x.x",
-    "@hapi/joi": "15.x.x",
+    "@hapi/joi": "16.x.x",
     "ioredis": "4.x.x"
   },
   "devDependencies": {

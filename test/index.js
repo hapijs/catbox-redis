@@ -233,7 +233,7 @@ describe('Connection', () => {
         const client = new Catbox.Client(CatboxRedis);
         await client.start();
 
-        await expect(client.set(null, {}, 1000)).to.reject(Error);
+        await expect(client.set(null, {}, 1000)).to.reject();
     });
 
     it('errors on get when using invalid key', async () => {
@@ -241,7 +241,7 @@ describe('Connection', () => {
         const client = new Catbox.Client(CatboxRedis);
         await client.start();
 
-        await expect(client.get({})).to.reject(Error);
+        await expect(client.get({})).to.reject();
     });
 
     it('errors on drop when using invalid key', async () => {
@@ -249,7 +249,7 @@ describe('Connection', () => {
         const client = new Catbox.Client(CatboxRedis);
         await client.start();
 
-        await expect(client.drop({})).to.reject(Error);
+        await expect(client.drop({})).to.reject();
     });
 
     it('errors on set when using invalid key', async () => {
@@ -257,7 +257,7 @@ describe('Connection', () => {
         const client = new Catbox.Client(CatboxRedis);
         await client.start();
 
-        await expect(client.set({}, {}, 1000)).to.reject(Error);
+        await expect(client.set({}, {}, 1000)).to.reject();
     });
 
     it('ignores set when using non-positive ttl value', async () => {
@@ -273,7 +273,7 @@ describe('Connection', () => {
         const client = new Catbox.Client(CatboxRedis);
         await client.start();
 
-        await expect(client.drop(null)).to.reject(Error);
+        await expect(client.drop(null)).to.reject();
     });
 
     it('errors on get when stopped', async () => {
@@ -342,7 +342,7 @@ describe('Connection', () => {
         const client = new Catbox.Client(CatboxRedis);
         await client.stop();
 
-        await expect(client.drop('a')).to.reject(Error);
+        await expect(client.drop('a')).to.reject();
     });
 
     describe('start()', () => {
@@ -385,7 +385,7 @@ describe('Connection', () => {
 
             const redis = new CatboxRedis(options);
 
-            await expect(redis.start()).to.reject(Error);
+            await expect(redis.start()).to.reject();
 
             expect(redis.client).to.not.exist();
         });
@@ -410,7 +410,7 @@ describe('Connection', () => {
             await redis.start();
 
             console.warn = warn;
-            expect(consoleMessage).to.contain('Redis server does not require a password, but a password was supplied.');
+            expect(consoleMessage).to.contain('Redis server does not require a password, but a password was supplied');
         });
 
         it('fails in error when auth is not correct', async () => {
@@ -423,7 +423,7 @@ describe('Connection', () => {
 
             const redis = new CatboxRedis(options);
 
-            await expect(redis.start()).to.reject(Error);
+            await expect(redis.start()).to.reject();
 
             expect(redis.client).to.not.exist();
         });
@@ -456,7 +456,7 @@ describe('Connection', () => {
             expect(redis.client).to.exist();
         });
 
-        it('connects to a unix domain socket when one is provided.', async () => {
+        it('connects to a unix domain socket when one is provided', async () => {
 
             const options = {
                 socket: '/tmp/redis.sock'
@@ -468,7 +468,7 @@ describe('Connection', () => {
             expect(redis.client).to.exist();
         });
 
-        it('connects via a Redis URL when one is provided.', async () => {
+        it('connects via a Redis URL when one is provided', async () => {
 
             const options = {
                 url: 'redis://127.0.0.1:6379'
@@ -482,7 +482,7 @@ describe('Connection', () => {
 
         describe('', () => {
 
-            it('connects to a sentinel cluster.', async () => {
+            it('connects to a sentinel cluster', async () => {
 
                 const sentinel = new Mock(27379, (argv) => {
 
@@ -652,7 +652,7 @@ describe('Connection', () => {
                 }
             };
 
-            await expect(redis.get('test')).to.reject(Error);
+            await expect(redis.get('test')).to.reject();
         });
 
         it('returns a promise that rejects when there is an error parsing the result', async () => {
@@ -820,7 +820,7 @@ describe('Connection', () => {
                 }
             };
 
-            await expect(redis.set('test', 'test', 3600)).to.reject(Error);
+            await expect(redis.set('test', 'test', 3600)).to.reject();
         });
     });
 
