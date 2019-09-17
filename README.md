@@ -1,6 +1,6 @@
 <a href="http://hapijs.com"><img src="https://raw.githubusercontent.com/hapijs/assets/master/images/family.png" width="180px" align="right" /></a>
 
-# catbox-redis
+# @hapi/catbox-redis
 
 Redis adapter for [catbox](https://github.com/hapijs/catbox)
 
