@@ -95,7 +95,7 @@ describe('Redis Cluster', () => {
         const value = { a: 1 };
         value.b = value;
 
-        await expect(client.set(key, value, 10)).to.reject(Error, /Converting circular structure to JSON/);
+        await expect(client.set(key, value, 10)).to.reject(/Converting circular structure to JSON/);
     });
 
     it('ignored starting a connection twice chained', async () => {
@@ -277,7 +277,7 @@ describe('Redis Cluster', () => {
         await client.stop();
 
         const key = { id: 'x', segment: 'test' };
-        await expect(client.connection.get(key)).to.reject(Error, 'Connection not started');
+        await expect(client.connection.get(key)).to.reject('Connection not started');
     });
 
     it('returns error on set when stopped', async () => {
@@ -295,7 +295,7 @@ describe('Redis Cluster', () => {
         await client.stop();
 
         const key = { id: 'x', segment: 'test' };
-        await expect(client.connection.set(key, 'y', 1)).to.reject(Error, 'Connection not started');
+        expect(() => client.connection.set(key, 'y', 1)).to.throw('Connection not started');
     });
 
     it('returns error on drop when stopped', async () => {
@@ -608,7 +608,7 @@ describe('Redis Cluster', () => {
                 }
             };
 
-            await expect(redisCluster.get('test')).to.reject(Error, 'Bad envelope content');
+            await expect(redisCluster.get('test')).to.reject('Bad envelope content');
         });
 
         it('returns a promise that rejects when there is an error with the envelope structure (stored)', async () => {
@@ -629,7 +629,7 @@ describe('Redis Cluster', () => {
                 }
             };
 
-            await expect(redisCluster.get('test')).to.reject(Error, 'Incorrect envelope structure');
+            await expect(redisCluster.get('test')).to.reject('Incorrect envelope structure');
         });
 
         it('returns a promise that rejects when there is an error with the envelope structure (item)', async () => {
@@ -650,7 +650,7 @@ describe('Redis Cluster', () => {
                 }
             };
 
-            await expect(redisCluster.get('test')).to.reject(Error, 'Incorrect envelope structure');
+            await expect(redisCluster.get('test')).to.reject('Incorrect envelope structure');
         });
 
         it('is able to retrieve an object thats stored when connection is started', async () => {
