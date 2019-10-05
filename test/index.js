@@ -814,7 +814,7 @@ describe('Connection', () => {
 
             const redis = new CatboxRedis(options);
             redis.client = {
-                set: function (key, item, callback) {
+                psetex: function (key, ttls, value) {
 
                     return Promise.reject(Error());
                 }

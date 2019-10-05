@@ -778,7 +778,7 @@ describe('Redis Cluster', () => {
             });
 
             redisCluster.client = {
-                set: function (key, item, callback) {
+                psetex: function (key, ttl, value) {
 
                     return Promise.reject(Error());
                 }
