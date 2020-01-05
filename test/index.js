@@ -82,7 +82,7 @@ describe('hapi', () => {
     });
 });
 
-describe('Connection', () => {
+describe('Connection', { retry: true }, () => {
 
     it('creates a new connection', async () => {
 

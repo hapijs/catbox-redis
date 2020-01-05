@@ -4,21 +4,24 @@
   "version": "5.0.5",
   "repository": "git://github.com/hapijs/catbox-redis",
   "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
   "keywords": [
     "cache",
     "catbox",
     "redis"
   ],
   "dependencies": {
-    "@hapi/hoek": "8.x.x",
-    "@hapi/joi": "16.x.x",
+    "@hapi/hoek": "9.x.x",
+    "@hapi/joi": "17.x.x",
     "ioredis": "4.x.x"
   },
   "devDependencies": {
-    "@hapi/catbox": "10.x.x",
-    "@hapi/code": "6.x.x",
+    "@hapi/catbox": "11.x.x",
+    "@hapi/code": "8.x.x",
     "@hapi/hapi": "18.x.x",
-    "@hapi/lab": "20.x.x",
+    "@hapi/lab": "22.x.x",
     "redis-parser": "3.x.x"
   },
   "scripts": {
