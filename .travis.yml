@@ -12,6 +12,7 @@ install:
 
 env:
   - HAPI_VERSION="18"
+  - HAPI_VERSION="19"
 
 os:
   - "linux"

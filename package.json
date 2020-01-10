@@ -20,7 +20,7 @@
   "devDependencies": {
     "@hapi/catbox": "11.x.x",
     "@hapi/code": "8.x.x",
-    "@hapi/hapi": "18.x.x",
+    "@hapi/hapi": "19.x.x",
     "@hapi/lab": "22.x.x",
     "redis-parser": "3.x.x"
   },
