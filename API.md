@@ -42,7 +42,7 @@ const CatboxRedis = require('@hapi/catbox-redis');
 
 
 const cache = new Catbox.Client(CatboxRedis, {
-    partition : 'my_cached_data'
+    partition : 'my_cached_data',
     host: 'redis-cluster.domain.com',
     port: 6379,
     db: 0,
@@ -63,7 +63,7 @@ const server = new Hapi.Server({
             provider: {
                 constructor: CatboxRedis,
                 options: {
-                    partition : 'my_cached_data'
+                    partition : 'my_cached_data',
                     host: 'redis-cluster.domain.com',
                     port: 6379,
                     db: 0,
