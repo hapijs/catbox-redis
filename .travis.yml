@@ -1,21 +1,10 @@
-language: node_js
+version: ~> 1.0
 
-node_js:
-  - "12"
-  - "14"
-  - "node"
 
-sudo: false
-
-install:
-  - "npm install"
-  - "npm install @hapi/hapi@$HAPI_VERSION"
-
-env:
-  - HAPI_VERSION="19"
-
-os:
-  - "linux"
+import:
+  - hapijs/ci-config-travis:node_js.yml@main
+  - hapijs/ci-config-travis:install_plugin.yml@main
+  - hapijs/ci-config-travis:env.yml@main
 
 services:
   - redis
@@ -26,4 +15,3 @@ before_script:
   - redis-server --port 6378 --requirepass secret &
   - redis-server --port 6377 --unixsocket /tmp/redis.sock &
   - sleep 2
-
