@@ -84,10 +84,4 @@ The test suite expects:
 - a redis server listenning on socket `/tmp/redis.sock`
 - a redis cluster contains nodes running on ports 7000 to 7005
 
-See [.travis.yml](./.travis.yml)
-
-```sh
-docker-compose up -d
-redis-server &
-npm test
-```
+See [docker-compose.yml](./docker-compose.yml)
