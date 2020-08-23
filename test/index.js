@@ -410,7 +410,7 @@ describe('Connection', { retry: true }, () => {
             await redis.start();
 
             console.warn = warn;
-            expect(consoleMessage).to.contain('Redis server does not require a password, but a password was supplied');
+            expect(consoleMessage).to.contain('does not require a password, but a password was supplied');
         });
 
         it('fails in error when auth is not correct', async () => {
