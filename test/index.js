@@ -1,5 +1,7 @@
 'use strict';
 
+const Net = require('net');
+
 const Code = require('@hapi/code');
 const Catbox = require('@hapi/catbox');
 const CatboxRedis = require('..');
@@ -456,16 +458,29 @@ describe('Connection', { retry: true }, () => {
             expect(redis.client).to.exist();
         });
 
-        it('connects to a unix domain socket when one is provided', async () => {
+        it('connects to a unix domain socket when one is provided', () => {
 
-            const options = {
-                socket: '/tmp/redis.sock'
-            };
+            const socketPath = '/tmp/redis.sock';
+            const promise = new Promise((resolve, reject) => {
 
-            const redis = new CatboxRedis(options);
+                let connected = false;
+                const server = new Net.createServer((socket) => {
 
-            await redis.start();
-            expect(redis.client).to.exist();
+                    connected = true;
+                    socket.destroy();
+                });
+
+                server.once('error', reject);
+                server.listen(socketPath, async () => {
+
+                    const redis = new CatboxRedis({ socket: socketPath });
+                    await expect(redis.start()).to.reject('Connection is closed.');
+                    expect(connected).to.equal(true);
+                    server.close(resolve);
+                });
+            });
+
+            return promise;
         });
 
         it('connects via a Redis URL when one is provided', async () => {

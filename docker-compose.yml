@@ -13,13 +13,6 @@ services:
     ports:
       - 6378:6379
 
-  redis_with_uds:
-    container_name: redis_with_uds
-    image: redis:6-alpine
-    command: redis-server --unixsocket /tmp/redis.sock
-    volumes:
-      - /tmp:/tmp
-
   redis_cluster:
     container_name: redis_cluster
     image: grokzen/redis-cluster:5.0.5
