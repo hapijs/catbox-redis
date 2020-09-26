@@ -24,7 +24,7 @@
     "@hapi/catbox": "11.x.x",
     "@hapi/code": "8.x.x",
     "@hapi/hapi": "20.x.x",
-    "@hapi/lab": "23.x.x",
+    "@hapi/lab": "24.x.x",
     "redis-parser": "3.x.x"
   },
   "scripts": {
