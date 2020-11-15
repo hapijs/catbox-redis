@@ -26,5 +26,11 @@ jobs:
         run: npm install
       - name: install hapi
         run: npm install @hapi/hapi@${{ matrix.hapi }}
+      - name: Start containers
+        run: docker-compose up -d
+      - name: Sleep for 5s
+        uses: jakejarvis/wait-action@v0.1.0
+        with:
+          time: '5s'
       - name: test
         run: npm test
