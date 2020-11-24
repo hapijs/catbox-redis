@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, windows, macos]
+        os: [ubuntu, macos]
         node: ['*', '14', '12']
         hapi: ['20', '19']
 
@@ -22,10 +22,13 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node }}
-      - name: install
+      - name: Install
         run: npm install
-      - name: install hapi
+      - name: Install hapi
         run: npm install @hapi/hapi@${{ matrix.hapi }}
+      - name: Install docker
+        if: matrix.os == 'macos'
+        uses: docker-practice/actions-setup-docker@v1
       - name: Start containers
         run: docker-compose up -d
       - name: Sleep for 5s
