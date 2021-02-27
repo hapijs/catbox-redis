@@ -31,6 +31,8 @@ Other supported Redis options:
 - `sentinelName` - the name of the sentinel master (when `sentinels` is specified).
 - `tls` - an object representing TLS config options for **ioredis**.
 
+The plugin also accepts other `redis` options not mentioned above.
+
 
 ## Usage
 
