@@ -15,6 +15,11 @@
     "catbox",
     "redis"
   ],
+  "eslintConfig": {
+    "extends": [
+      "plugin:@hapi/module"
+    ]
+  },
   "dependencies": {
     "@hapi/hoek": "9.x.x",
     "ioredis": "4.x.x",
@@ -23,6 +28,7 @@
   "devDependencies": {
     "@hapi/catbox": "11.x.x",
     "@hapi/code": "8.x.x",
+    "@hapi/eslint-plugin": "*",
     "@hapi/hapi": "20.x.x",
     "@hapi/lab": "24.x.x",
     "redis-parser": "3.x.x"
