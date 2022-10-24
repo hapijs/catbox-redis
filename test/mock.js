@@ -39,7 +39,7 @@ module.exports = internals.MockServer = class extends EventEmitter {
                 returnReply: (reply) => {
 
                     reply = this.convertBufferToString(reply);
-                    this.write(socket, this.handler && this.handler(reply));
+                    this.write(socket, this.handler?.(reply));
                 },
                 returnError: function () {}
             });

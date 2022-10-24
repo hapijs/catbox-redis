@@ -1,5 +1,5 @@
 
-## Options
+### `new CatboxRedis.Engine(options)`
 
 The connection can be specified with one (and only one) of:
 
@@ -34,7 +34,7 @@ Other supported Redis options:
 The plugin also accepts other `redis` options not mentioned above.
 
 
-## Usage
+### Usage
 
 Sample catbox cache initialization:
 
@@ -78,7 +78,7 @@ const server = new Hapi.Server({
 ```
 
 
-## Tests
+### Tests
 
 The test suite expects:
 - a redis server to be running on port 6379

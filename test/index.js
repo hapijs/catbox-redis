@@ -2,87 +2,19 @@
 
 const Net = require('net');
 
-const Code = require('@hapi/code');
-const Catbox = require('@hapi/catbox');
-const CatboxRedis = require('..');
-const Hapi = require('@hapi/hapi');
-const Hoek = require('@hapi/hoek');
 const IoRedis = require('ioredis');
-const Lab = require('@hapi/lab');
-
+const Catbox = require('@hapi/catbox');
+const Hoek = require('@hapi/hoek');
 const Mock = require('./mock');
+const { Engine: CatboxRedis } = require('..');
 
+const Code = require('@hapi/code');
+const Lab = require('@hapi/lab');
 
 const internals = {};
 
-
 const { it, describe } = exports.lab = Lab.script();
 const expect = Code.expect;
-
-
-describe('hapi', () => {
-
-    const config = (options) => {
-
-        if (require('@hapi/hapi/package.json').version[1] === '7') {
-            options.engine = CatboxRedis;
-            return options;
-        }
-
-        return {
-            provider: {
-                constructor: CatboxRedis,
-                options
-            }
-        };
-    };
-
-    it('uses redis server for caching', async () => {
-
-        const server = Hapi.server({
-            cache: config({
-                host: '127.0.0.1',
-                port: 6379,
-                partition: 'hapi-test-redis'
-            })
-        });
-
-        const cache = server.cache({ segment: 'test', expiresIn: 1000 });
-        await server.initialize();
-
-        await cache.set('a', 'going in');
-        expect(await cache.get('a')).to.equal('going in');
-    });
-
-    it('uses redis cluster for caching', async () => {
-
-        const server = Hapi.server({
-            cache: config({
-                cluster: [
-                    {
-                        host: '127.0.0.1',
-                        port: 7000
-                    },
-                    {
-                        host: '127.0.0.1',
-                        port: 7001
-                    },
-                    {
-                        host: '127.0.0.1',
-                        port: 7002
-                    }
-                ],
-                partition: 'hapi-test-redis'
-            })
-        });
-
-        const cache = server.cache({ segment: 'test', expiresIn: 1000 });
-        await server.initialize();
-
-        await cache.set('a', 'going in');
-        expect(await cache.get('a')).to.equal('going in');
-    });
-});
 
 describe('Connection', { retry: true }, () => {
 
@@ -460,7 +392,7 @@ describe('Connection', { retry: true }, () => {
 
         it('connects to a unix domain socket when one is provided', () => {
 
-            const socketPath = '/tmp/redis.sock';
+            const socketPath = '/tmp/catbox-redis.sock';
             const promise = new Promise((resolve, reject) => {
 
                 let connected = false;
