@@ -1,7 +1,7 @@
 {
   "name": "@hapi/catbox-redis",
   "description": "Redis adapter for catbox",
-  "version": "6.0.2",
+  "version": "7.0.0",
   "repository": "git://github.com/hapijs/catbox-redis",
   "engines": {
     "node": ">=14.0.0"
