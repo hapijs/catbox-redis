@@ -1,9 +1,10 @@
 'use strict';
 
-const Catbox = require('@hapi/catbox');
-const CatboxRedis = require('..');
-const Code = require('@hapi/code');
 const Hoek = require('@hapi/hoek');
+const Catbox = require('@hapi/catbox');
+const { Engine: CatboxRedis } = require('..');
+
+const Code = require('@hapi/code');
 const Lab = require('@hapi/lab');
 
 
