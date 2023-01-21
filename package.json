@@ -22,15 +22,15 @@
   },
   "dependencies": {
     "@hapi/bourne": "^3.0.0",
-    "@hapi/hoek": "^10.0.0",
+    "@hapi/hoek": "^11.0.2",
     "ioredis": "^5.0.0",
-    "joi": "^17.0.0"
+    "joi": "^17.7.1"
   },
   "devDependencies": {
-    "@hapi/catbox": "^12.0.0",
-    "@hapi/code": "^9.0.1",
-    "@hapi/eslint-plugin": "^6.0.0",
-    "@hapi/lab": "^25.0.1",
+    "@hapi/catbox": "^12.1.1",
+    "@hapi/code": "^9.0.3",
+    "@hapi/eslint-plugin": "*",
+    "@hapi/lab": "^25.1.2",
     "redis-parser": "^3.0.0"
   },
   "scripts": {
