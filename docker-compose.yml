@@ -15,7 +15,7 @@ services:
 
   redis_cluster:
     container_name: redis_cluster
-    image: grokzen/redis-cluster:5.0.5
+    image: grokzen/redis-cluster:6.2.8
     environment:
       IP: '0.0.0.0'
       CLUSTER_ONLY: 'true'

@@ -24,12 +24,16 @@ jobs:
           check-latest: ${{ matrix.node == '*' }}
       - name: Install
         run: npm install
-      - name: Install docker
+      - name: Start docker
         if: matrix.os == 'macos'
-        uses: docker-practice/actions-setup-docker@v1
+        run: brew install docker docker-compose && colima start
       - name: Start containers
         run: docker-compose up -d
       - name: Sleep for 5s
+        if: matrix.os != 'macos'
         run: sleep 5s;
+      - name: Sleep for 5s
+        if: matrix.os == 'macos'
+        run: sleep 5;
       - name: test
         run: npm test
