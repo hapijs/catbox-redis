@@ -40,7 +40,7 @@ Sample catbox cache initialization:
 
 ```js
 const Catbox = require('@hapi/catbox');
-const CatboxRedis = require('@hapi/catbox-redis');
+const { Engine: CatboxRedis } = require('@hapi/catbox-redis');
 
 
 const cache = new Catbox.Client(CatboxRedis, {
@@ -56,7 +56,7 @@ When used in a hapi server (hapi version 18 or newer):
 
 ```js
 const Hapi = require('hapi')
-const CatboxRedis = require('@hapi/catbox-redis');
+const { Engine: CatboxRedis } = require('@hapi/catbox-redis');
 
 const server = new Hapi.Server({
     cache : [
