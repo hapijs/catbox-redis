@@ -32,10 +32,12 @@
     "@hapi/code": "^9.0.3",
     "@hapi/eslint-plugin": "*",
     "@hapi/lab": "^25.1.2",
-    "redis-parser": "^3.0.0"
+    "@types/node": "^16.18.39",
+    "redis-parser": "^3.0.0",
+    "typescript": "^5.1.6"
   },
   "scripts": {
-    "test": "lab -t 100 -a @hapi/code -L -m 15000",
+    "test": "lab -t 100 -a @hapi/code -L -m 15000 -Y",
     "test-cov-html": "lab -r html -o coverage.html -a @hapi/code -L"
   },
   "license": "BSD-3-Clause"
