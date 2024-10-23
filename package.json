@@ -30,7 +30,7 @@
   "devDependencies": {
     "@hapi/catbox": "^12.1.1",
     "@hapi/code": "^9.0.3",
-    "@hapi/eslint-plugin": "*",
+    "@hapi/eslint-plugin": "^6.0.0",
     "@hapi/lab": "^25.1.2",
     "@types/node": "^16.18.39",
     "redis-parser": "^3.0.0",
