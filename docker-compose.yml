@@ -1,21 +1,20 @@
-version: '3.0'
 services:
   redis_basic:
     container_name: redis_basic
-    image: redis:6-alpine
+    image: redis:8-alpine
     ports:
       - 6379:6379
 
   redis_with_password:
     container_name: redis_with_password
-    image: redis:6-alpine
+    image: redis:8-alpine
     command: redis-server --requirepass secret
     ports:
       - 6378:6379
 
   redis_cluster:
     container_name: redis_cluster
-    image: grokzen/redis-cluster:6.2.8
+    image: grokzen/redis-cluster:7.2.5
     environment:
       IP: '0.0.0.0'
       CLUSTER_ONLY: 'true'
@@ -26,3 +25,29 @@ services:
       - 7003:7003
       - 7004:7004
       - 7005:7005
+
+  dragonfly:
+    image: docker.dragonflydb.io/dragonflydb/dragonfly
+    container_name: dragonfly_db
+    ports:
+      - "6377:6379"
+
+  dragonfly_with_password:
+    image: docker.dragonflydb.io/dragonflydb/dragonfly
+    container_name: dragonfly_db_with_password
+    command: dragonfly --requirepass secret
+    ports:
+      - "6376:6379"
+
+  valkey:
+    image: valkey/valkey:8-alpine
+    container_name: valkey_db
+    ports:
+      - "6375:6379"
+
+  valkey_with_password:
+    image: valkey/valkey:8-alpine
+    container_name: valkey_db_with_password
+    command: valkey-server --requirepass secret
+    ports:
+      - "6374:6379"

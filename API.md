@@ -31,7 +31,7 @@ Other supported Redis options:
 - `sentinelName` - the name of the sentinel master (when `sentinels` is specified).
 - `tls` - an object representing TLS config options for **ioredis**.
 
-The plugin also accepts other `redis` options not mentioned above.
+The plugin also accepts other `redis` options not mentioned above. It should work with `redis`, `dragonflydb`, and `valkey`— any Redis-compatible datastores should work with this plugin.
 
 
 ### Usage
