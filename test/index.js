@@ -402,7 +402,6 @@ describe('Connection', { retry: true }, () => {
                 const redis = new CatboxRedis(options);
 
                 const start = redis.start();
-                console.log(start);
 
                 await expect(start).to.reject();
 

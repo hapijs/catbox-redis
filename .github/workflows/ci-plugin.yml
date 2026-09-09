@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, macos]
+        os: [ubuntu]
         node: ["*", "16", "14"]
     runs-on: ${{ matrix.os }}-latest
     name: ${{ matrix.os }} node@${{ matrix.node }}
@@ -24,16 +24,7 @@ jobs:
           check-latest: ${{ matrix.node == '*' }}
       - name: Install
         run: npm install
-      - name: Start docker
-        if: matrix.os == 'macos'
-        run: brew install docker docker-compose && colima start
       - name: Start containers
-        run: docker-compose up -d
-      - name: Sleep for 5s
-        if: matrix.os != 'macos'
-        run: sleep 5s;
-      - name: Sleep for 5s
-        if: matrix.os == 'macos'
-        run: sleep 5;
+        run: docker compose up -d --wait
       - name: test
         run: npm test

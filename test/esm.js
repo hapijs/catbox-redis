@@ -19,7 +19,11 @@ describe('import()', () => {
 
     it('exposes all methods and classes as named imports', () => {
 
-        expect(Object.keys(CatboxRedis)).to.equal([
+        // node >= 23 adds a 'module.exports' named export on cjs modules, drop it to keep the assertion strict
+
+        const keys = Object.keys(CatboxRedis).filter((key) => key !== 'module.exports');
+
+        expect(keys).to.equal([
             'Engine',
             'default'
         ]);
