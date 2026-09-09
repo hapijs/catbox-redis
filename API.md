@@ -25,6 +25,7 @@ Or:
 
 Other supported Redis options:
 
+- `username` - the Redis ACL username when required. Only supported by Redis 6 and above.
 - `password` - the Redis authentication password when required.
 - `db` - a Redis database name or number.
 - `sentinels` - an array of `{ host, port }` sentinel address pairs.
