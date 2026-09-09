@@ -33,6 +33,10 @@ export interface CatboxRedisOptions extends ClientOptions {
      */
     socket?: string | undefined;
     /**
+     * the Redis ACL username when required (Redis 6 and above).
+     */
+    username?: string | undefined;
+    /**
      * the Redis authentication password when required.
      */
     password?: string | undefined;

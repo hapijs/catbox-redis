@@ -420,6 +420,33 @@ describe('Connection', { retry: true }, () => {
                 expect(redis.client).to.exist();
             });
 
+            it('success when username and password are correct', async () => {
+
+                const options = {
+                    ...config.withpass,
+                    username: 'default'
+                };
+
+                const redis = new CatboxRedis(options);
+
+                await redis.start();
+                expect(redis.client).to.exist();
+            });
+
+            it('fails in error when the username is not correct', async () => {
+
+                const options = {
+                    ...config.withpass,
+                    username: 'unknown'
+                };
+
+                const redis = new CatboxRedis(options);
+
+                await expect(redis.start()).to.reject();
+
+                expect(redis.client).to.not.exist();
+            });
+
             it('sends select command when database is provided', async () => {
 
                 const options = {
