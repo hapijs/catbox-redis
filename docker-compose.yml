@@ -57,3 +57,16 @@ services:
     command: valkey-server --requirepass secret
     ports:
       - "6374:6379"
+
+  kividb:
+    image: kividb/kividb:v1.2.2
+    container_name: kividb_db
+    ports:
+      - "6373:6380"
+
+  kividb_with_password:
+    image: kividb/kividb:v1.2.2
+    container_name: kividb_db_with_password
+    command: --protected-mode no --requirepass secret
+    ports:
+      - "6372:6380"

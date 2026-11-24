@@ -49,6 +49,17 @@ const configs = [
             port: 6374,
             password: 'secret'
         }
+    }],
+    ['kividb', {
+        nopass: {
+            host: '127.0.0.1',
+            port: 6373
+        },
+        withpass: {
+            host: '127.0.0.1',
+            port: 6372,
+            password: 'secret'
+        }
     }]
 ];
 
